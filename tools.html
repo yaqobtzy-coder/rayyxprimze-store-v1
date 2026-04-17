@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tools Zone | RayyxPrimze</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: rgba(10,10,26,0.98);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            transition: 0.3s;
+            padding: 20px;
+            border-right: 1px solid rgba(255,215,0,0.2);
+        }
+        .sidebar.open { left: 0; }
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        .sidebar-overlay.open { display: block; }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+        }
+        .sidebar-header h3 {
+            background: linear-gradient(135deg, #FFD966, #FFA500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .sidebar-menu {
+            list-style: none;
+        }
+        .sidebar-menu li { margin-bottom: 15px; }
+        .sidebar-menu li a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 16px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .sidebar-menu li a:hover { background: rgba(255,215,0,0.15); }
+        .sidebar-menu li a i { width: 25px; color: #ffd700; font-size: 1.1rem; }
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            z-index: 98;
+            font-size: 1.2rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+        
+        /* Login Container */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 40px 32px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        .login-card h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 40px;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+        .login-card button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #0a0a1a;
+            cursor: pointer;
+        }
+        .error-msg {
+            background: rgba(255,68,68,0.2);
+            border-left: 3px solid #ff4444;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 30px;
+            padding: 12px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+        .header h1 {
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .back-btn, .logout-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .music-toggle-btn, .owner-toggle-btn {
+            background: rgba(255,215,0,0.2);
+            border: none;
+            color: #ffd700;
+            padding: 8px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .user-info {
+            font-size: 0.7rem;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            padding: 10px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+        .status-item i { color: #ffd700; }
+        .battery-level {
+            width: 25px;
+            height: 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .battery-fill { height: 100%; background: #28a745; width: 0%; transition: width 0.3s; }
+        .location-select {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #ffd700;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 55vh;
+            min-height: 300px;
+        }
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 100%;
+        }
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .message-avatar i { font-size: 1rem; color: #0a0a1a; }
+        .message-content {
+            flex: 1;
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 12px 16px;
+            border-bottom-left-radius: 4px;
+        }
+        .message.user .message-content {
+            background: linear-gradient(95deg, #ff9800, #ff5722);
+            border-bottom-right-radius: 4px;
+            border-bottom-left-radius: 20px;
+        }
+        .message.bot .message-content {
+            background: rgba(0,0,0,0.5);
+            border-bottom-left-radius: 4px;
+        }
+        .message-name {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+        .message-text {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .message-time {
+            font-size: 0.6rem;
+            opacity: 0.5;
+            text-align: right;
+            margin-top: 6px;
+        }
+        
+        /* Input Area */
+        .input-area {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 8px 16px;
+            display: flex;
+            gap: 10px;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+        .input-area input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 8px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .input-area button {
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            border: none;
+            padding: 0 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: #0a0a1a;
+            cursor: pointer;
+        }
+        
+        /* Menu Box */
+        .menu-box {
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+        .menu-header {
+            text-align: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+        }
+        .menu-header h2 {
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .profile-card {
+            background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,100,0,0.05));
+            border-radius: 20px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile-avatar i { font-size: 1.5rem; color: #0a0a1a; }
+        .profile-info { flex: 1; }
+        .profile-info .name { font-weight: 700; font-size: 1rem; }
+        .profile-info .status { font-size: 0.7rem; opacity: 0.7; }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 10px;
+            margin-bottom: 16px;
+        }
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        .stat-item i { font-size: 1.2rem; color: #ffd700; }
+        .stat-item .label { font-size: 0.6rem; opacity: 0.6; }
+        .stat-item .value { font-weight: 700; font-size: 0.9rem; }
+        
+        .menu-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .menu-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .section-title {
+            background: rgba(255,215,0,0.15);
+            padding: 10px 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #ffd700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .section-title .toggle-icon { font-size: 0.7rem; }
+        .section-items { 
+            padding: 8px;
+            display: block;
+        }
+        .section-items.collapsed { display: none; }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:hover { background: rgba(255,215,0,0.1); }
+        .menu-icon { width: 32px; text-align: center; }
+        .menu-icon i { font-size: 1.1rem; color: #ffd700; }
+        .menu-info { flex: 1; }
+        .menu-title { font-size: 0.8rem; font-weight: 600; }
+        .menu-desc { font-size: 0.65rem; opacity: 0.6; }
+        
+        .result-image {
+            max-width: 100%;
+            border-radius: 16px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        .result-video {
+            max-width: 100%;
+            border-radius: 16px;
+            margin-top: 8px;
+        }
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-download {
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #ffd700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #ffd700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+        
+        /* Music Modal */
+        .music-modal, .owner-modal, .category-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .music-modal-content, .owner-modal-content, .category-modal-content {
+            background: #1a1a2e;
+            border-radius: 32px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+        }
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            color: white;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+        .btn-primary {
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: #0a0a1a;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-danger {
+            background: rgba(220,53,69,0.8);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        
+        .category-item, .premium-menu-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .menu-list {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+        .sub-menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .floating-music-player {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            border-radius: 60px;
+            padding: 10px 16px;
+            z-index: 2000;
+            border: 1px solid rgba(255,215,0,0.3);
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+        .floating-player-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .floating-player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 2;
+        }
+        .floating-player-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        .floating-player-details { flex: 1; }
+        .floating-player-details div:first-child { font-size: 0.8rem; font-weight: 600; }
+        .floating-player-details div:last-child { font-size: 0.6rem; opacity: 0.7; }
+        .floating-player-controls { display: flex; gap: 8px; }
+        .floating-btn {
+            background: rgba(255,215,0,0.2);
+            border: none;
+            color: #ffd700;
+            padding: 8px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .floating-volume {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .floating-volume input { width: 80px; }
+        
+        .toast {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 2000;
+            border-left: 4px solid #ffd700;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .maintenance-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+        .maintenance-card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 40px 32px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            max-width: 450px;
+            width: 100%;
+        }
+        .warning-premium {
+            background: rgba(255,68,68,0.3);
+            border-left: 4px solid #ff4444;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 20px;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+        .role-badge.member { background: #28a745; }
+        .role-badge.premium { background: #ffd700; color: #1a1a2e; }
+        .role-badge.admin { background: #dc3545; }
+        .role-badge.owner { background: linear-gradient(95deg, #FFD700, #FF8C00); color: #1a1a2e; }
+        
+        .icon-select {
+            background: #1a1a2e;
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            padding: 8px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+    
+    <!-- SIDEBAR -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-crown"></i> RayyxPrimze</h3>
+            <i class="fas fa-times" onclick="closeSidebar()" style="font-size:1.3rem; cursor:pointer;"></i>
+        </div>
+        <ul class="sidebar-menu" id="sidebarMenu">
+            <li><a onclick="closeSidebar(); showMainMenu();"><i class="fas fa-home"></i> Beranda</a></li>
+            <li><a onclick="closeSidebar(); scrollToSection('menu-utama');"><i class="fas fa-star"></i> Menu Utama</a></li>
+            <li><a onclick="closeSidebar(); scrollToSection('maker');"><i class="fas fa-palette"></i> Maker & Kreatif</a></li>
+            <li><a onclick="closeSidebar(); scrollToSection('brat');"><i class="fas fa-crown"></i> Brat Style</a></li>
+            <li><a onclick="closeSidebar(); scrollToSection('premium');"><i class="fas fa-gem"></i> Menu Premium</a></li>
+            <li><a onclick="closeSidebar(); openMusicModal();"><i class="fas fa-music"></i> Music Player</a></li>
+            <li><a href="index.html" target="_blank"><i class="fas fa-store"></i> Web Store</a></li>
+            <li><a href="gacha.html" target="_blank"><i class="fas fa-dice-d6"></i> Gacha</a></li>
+            <li><a href="buy-role.html" target="_blank"><i class="fas fa-gem"></i> Upgrade Role</a></li>
+        </ul>
+    </div>
+    
+    <div class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <div id="maintenanceMode" style="display: none;">
+        <div class="maintenance-container">
+            <div class="maintenance-card">
+                <i class="fas fa-tools"></i>
+                <h1>Tools Zone Maintenance</h1>
+                <p id="maintenanceMessage">Tools Zone sedang dalam perbaikan. Mohon kembali lagi nanti.</p>
+                <p id="maintenanceTimer"></p>
+                <small>Terima kasih atas pengertiannya 🙏</small>
+            </div>
+        </div>
+    </div>
+    
+    <div id="normalApp">
+        <div id="loginSection" class="login-container">
+            <div class="login-card">
+                <h1><i class="fas fa-terminal"></i> Tools Zone</h1>
+                <p style="margin: 16px 0;">Login dengan akun web store Anda</p>
+                <div id="loginError" class="error-msg"></div>
+                <input type="text" id="loginUsername" placeholder="Username">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <button onclick="handleLogin()">MASUK</button>
+                <p style="margin-top: 16px; font-size: 0.7rem; opacity: 0.6;">
+                    <i class="fas fa-shield-alt"></i> Gunakan akun yang sama dengan web store
+                </p>
+            </div>
+        </div>
+        
+        <div id="premiumWarning" style="display: none;">
+            <div class="warning-premium">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Perhatian!</h3>
+                <p>Role akun anda tidak memenuhi syarat</p>
+                <p>Minimal role untuk akses Tools Zone adalah <strong>PREMIUM</strong></p>
+                <p>Role anda: <span id="warningUserRole">MEMBER</span></p>
+                <button onclick="goToBuyRole()" class="btn-download" style="margin-top: 16px; background:#ffd700; color:#1a1a2e;">Upgrade ke Premium</button>
+                <button onclick="goToWebStore()" class="btn-download" style="margin-top: 10px;">Kembali ke Store</button>
+            </div>
+        </div>
+        
+        <div id="mainApp" style="display: none;">
+            <div class="container">
+                <div class="header">
+                    <button class="back-btn" onclick="goToWebStore()"><i class="fas fa-arrow-left"></i></button>
+                    <h1><i class="fas fa-terminal"></i> Tools Zone</h1>
+                    <div style="flex:1;"></div>
+                    <button id="music-toggle-btn" class="music-toggle-btn"><i class="fas fa-music"></i></button>
+                    <button id="owner-toggle-btn" class="owner-toggle-btn" style="display:none;"><i class="fas fa-crown"></i></button>
+                    <div class="user-info" id="userInfo">Loading...</div>
+                    <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="status-item">
+                        <i class="fas fa-battery-full"></i>
+                        <div class="battery-level"><div class="battery-fill" id="batteryFill"></div></div>
+                        <span id="batteryPercent">--%</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="realTime">--:--:--</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <select id="locationSelect" class="location-select" onchange="changeLocation()">
+                            <option value="Asia/Jakarta">🇮🇩 Jakarta (WIB)</option>
+                            <option value="Asia/Makassar">🇮🇩 Makassar (WITA)</option>
+                            <option value="Asia/Jayapura">🇮🇩 Jayapura (WIT)</option>
+                            <option value="Asia/Tokyo">🇯🇵 Tokyo</option>
+                            <option value="Asia/Seoul">🇰🇷 Seoul</option>
+                            <option value="Asia/Dubai">🇦🇪 Dubai</option>
+                            <option value="Europe/London">🇬🇧 London</option>
+                            <option value="America/New_York">🇺🇸 New York</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages"></div>
+                
+                <div class="input-area">
+                    <i class="fas fa-terminal" style="color:#ffd700;"></i>
+                    <input type="text" id="commandInput" placeholder="Ketik perintah... Contoh: .menu atau .search nama" autocomplete="off">
+                    <button onclick="sendCommand()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MUSIC MODAL -->
+        <div id="music-modal" class="music-modal">
+            <div class="music-modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-music"></i> Music Player</h3>
+                    <button class="close-modal-btn" onclick="closeMusicModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="music-search-bar" style="display:flex; gap:10px; margin-bottom:20px;">
+                    <input type="text" id="music-search-input" placeholder="Cari lagu...">
+                    <button id="music-search-btn" style="background:#ffd700; border:none; padding:12px 20px; border-radius:30px; font-weight:bold;">Cari</button>
+                </div>
+                <div id="music-player-container" class="music-player-container">
+                    <div style="text-align:center; padding:40px; opacity:0.6;">
+                        <i class="fas fa-headphones" style="font-size:3rem;"></i>
+                        <p>Cari lagu untuk mulai mendengarkan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OWNER MODAL - KELOLA KATEGORI & MENU PREMIUM -->
+        <div id="owner-modal" class="owner-modal">
+            <div class="owner-modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-crown"></i> Owner Panel - Kelola Menu Premium</h3>
+                    <button class="close-modal-btn" onclick="closeOwnerModal()"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <!-- Form Tambah Kategori -->
+                <div style="background:rgba(0,0,0,0.3); border-radius:20px; padding:16px; margin-bottom:20px;">
+                    <h4 style="margin-bottom:12px;"><i class="fas fa-folder-plus"></i> Tambah Kategori Baru</h4>
+                    <div class="form-group">
+                        <label>Nama Kategori</label>
+                        <input type="text" id="newCategoryName" placeholder="Contoh: Tools Premium">
+                    </div>
+                    <div class="form-group">
+                        <label>Icon Kategori</label>
+                        <select id="newCategoryIcon" class="icon-select">
+                            <option value="fa-gem">💎 Gem</option>
+                            <option value="fa-star">⭐ Star</option>
+                            <option value="fa-crown">👑 Crown</option>
+                            <option value="fa-fire">🔥 Fire</option>
+                            <option value="fa-bolt">⚡ Bolt</option>
+                            <option value="fa-magic">✨ Magic</option>
+                            <option value="fa-rocket">🚀 Rocket</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="addCategoryBtn">+ Tambah Kategori</button>
+                </div>
+                
+                <!-- Form Tambah Menu ke Kategori -->
+                <div style="background:rgba(0,0,0,0.3); border-radius:20px; padding:16px; margin-bottom:20px;">
+                    <h4 style="margin-bottom:12px;"><i class="fas fa-plus-circle"></i> Tambah Menu ke Kategori</h4>
+                    <div class="form-group">
+                        <label>Pilih Kategori</label>
+                        <select id="menuCategorySelect" class="icon-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Perintah (cmd)</label>
+                        <input type="text" id="newMenuCmd" placeholder="Contoh: .fakepremium">
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Menu</label>
+                        <input type="text" id="newMenuName" placeholder="Contoh: Fake Premium">
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi</label>
+                        <input type="text" id="newMenuDesc" placeholder="Deskripsi singkat">
+                    </div>
+                    <div class="form-group">
+                        <label>Icon Menu</label>
+                        <select id="newMenuIcon" class="icon-select">
+                            <option value="fa-gem">💎 Gem</option>
+                            <option value="fa-star">⭐ Star</option>
+                            <option value="fa-crown">👑 Crown</option>
+                            <option value="fa-fire">🔥 Fire</option>
+                            <option value="fa-bolt">⚡ Bolt</option>
+                            <option value="fa-magic">✨ Magic</option>
+                            <option value="fa-rocket">🚀 Rocket</option>
+                            <option value="fa-robot">🤖 Robot</option>
+                            <option value="fa-gamepad">🎮 Gamepad</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" id="addPremiumMenuBtn">+ Tambah Menu</button>
+                </div>
+                
+                <!-- Daftar Kategori dan Menu -->
+                <div id="premiumCategoriesList">
+                    <div style="text-align:center; padding:20px;">Loading...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="floating-music-player" class="floating-music-player">
+            <div class="floating-player-content">
+                <div class="floating-player-info">
+                    <img id="floating-thumb" src="https://via.placeholder.com/40" alt="Thumb">
+                    <div class="floating-player-details">
+                        <div id="floating-title">-</div>
+                        <div id="floating-artist">-</div>
+                    </div>
+                </div>
+                <div class="floating-player-controls">
+                    <button id="floating-playpause" class="floating-btn"><i class="fas fa-play"></i></button>
+                    <button id="floating-stop" class="floating-btn"><i class="fas fa-stop"></i></button>
+                    <button id="floating-close" class="floating-btn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="floating-volume">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" id="floating-volume" min="0" max="100" value="50">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;">Memproses...</p>
+    </div>
+    
+    <script type="module">
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+            authDomain: "rayy-digital-store.firebaseapp.com",
+            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-digital-store",
+            storageBucket: "rayy-digital-store.firebasestorage.app",
+            messagingSenderId: "537690791174",
+            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+        import { getDatabase, ref, get, set, push, remove, onValue, update } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        // ==================== VARIABLES ====================
+        let currentUser = null;
+        let currentUserId = null;
+        let currentLocation = localStorage.getItem("tools_location") || "Asia/Jakarta";
+        let premiumCategories = [];
+        
+        const DEVICE_ID = localStorage.getItem('tools_device_id') || 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 16);
+        localStorage.setItem('tools_device_id', DEVICE_ID);
+        
+        const API_BASE = 'https://api.skylow.web.id/api';
+        
+        // Menu Sections Default (akan ditambah dengan premium categories)
+        let menuSections = [
+            { id: 'menu-utama', title: '✨ MENU UTAMA', icon: 'fa-star', items: [
+                { cmd: '.menu', name: 'Semua Fitur', desc: 'Lihat semua perintah yang tersedia', icon: 'fa-list' },
+                { cmd: '.search <query>', name: 'Cari TikTok', desc: 'Cari video dari TikTok', icon: 'fab fa-tiktok' },
+                { cmd: '.ai <pesan>', name: 'AI Grok', desc: 'Chat dengan kecerdasan buatan', icon: 'fa-robot' },
+                { cmd: '.time', name: 'Waktu Sekarang', desc: 'Lihat waktu di lokasi yang dipilih', icon: 'fa-clock' },
+                { cmd: '.battery', name: 'Cek Baterai', desc: 'Lihat status baterai HP', icon: 'fa-battery-full' },
+                { cmd: '.location', name: 'Lokasi Saat Ini', desc: 'Lihat kota dan zona waktu', icon: 'fa-map-marker-alt' }
+            ]},
+            { id: 'maker', title: '🎨 MAKER & KREATIF', icon: 'fa-palette', items: [
+                { cmd: '.fakegroup', name: 'Fake Group', desc: 'Buat screenshot grup palsu', icon: 'fa-users' },
+                { cmd: '.fakechannel', name: 'Fake Channel', desc: 'Buat screenshot channel palsu', icon: 'fa-tv' },
+                { cmd: '.fakedana', name: 'Fake DANA', desc: 'Buat screenshot saldo DANA', icon: 'fa-money-bill' },
+                { cmd: '.profileff', name: 'Profile FF', desc: 'Buat profil Free Fire', icon: 'fa-gamepad' },
+                { cmd: '.fakeff', name: 'Fake FF Card', desc: 'Buat kartu pemain FF', icon: 'fa-id-card' },
+                { cmd: '.fakedev', name: 'Fake Dev Card', desc: 'Buat kartu developer', icon: 'fa-code' }
+            ]},
+            { id: 'brat', title: '🎭 BRAT STYLE', icon: 'fa-crown', items: [
+                { cmd: '.brat', name: 'Brat Image', desc: 'Buat gambar brat style', icon: 'fa-image' },
+                { cmd: '.bratvid', name: 'Brat Video', desc: 'Buat video brat style', icon: 'fa-video' },
+                { cmd: '.bratgura', name: 'Brat Gura', desc: 'Gaya brat Gura', icon: 'fa-fish' },
+                { cmd: '.bratanime', name: 'Brat Anime', desc: 'Gaya brat anime', icon: 'fa-anime' },
+                { cmd: '.bratnezuko', name: 'Brat Nezuko', desc: 'Gaya brat Nezuko', icon: 'fa-mask' },
+                { cmd: '.bratpatrick', name: 'Brat Patrick', desc: 'Gaya brat Patrick', icon: 'fa-star' },
+                { cmd: '.bratqiqi', name: 'Brat Qiqi', desc: 'Gaya brat Qiqi', icon: 'fa-heart' }
+            ]}
+        ];
+        
+        // ==================== HELPER FUNCTIONS ====================
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
+        function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+        
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        // ==================== SIDEBAR ====================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+        function closeSidebar() { 
+            document.getElementById('sidebar').classList.remove('open'); 
+            document.getElementById('sidebarOverlay').classList.remove('open'); 
+        }
+        
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        window.toggleSidebar = toggleSidebar;
+        window.closeSidebar = closeSidebar;
+        window.scrollToSection = scrollToSection;
+        
+        // ==================== BATTERY & TIME & LOCATION ====================
+        async function getBatteryStatus() {
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    const level = Math.round(battery.level * 100);
+                    document.getElementById('batteryPercent').innerText = `${level}%`;
+                    document.getElementById('batteryFill').style.width = `${level}%`;
+                    document.getElementById('batteryFill').style.backgroundColor = level < 20 ? '#dc3545' : (level < 50 ? '#ffc107' : '#28a745');
+                    return { level, isCharging: battery.charging };
+                } catch(e) { return { level: 0, isCharging: false }; }
+            }
+            return { level: 0, isCharging: false };
+        }
+        
+        function getRealTime(location) {
+            const now = new Date();
+            const time = now.toLocaleTimeString('id-ID', { timeZone: location, hour12: false });
+            const date = now.toLocaleDateString('id-ID', { timeZone: location, year: 'numeric', month: 'long', day: 'numeric' });
+            return { time, date };
+        }
+        
+        let clockInterval;
+        function startClock() {
+            if (clockInterval) clearInterval(clockInterval);
+            clockInterval = setInterval(() => {
+                const location = document.getElementById('locationSelect')?.value || currentLocation;
+                const { time, date } = getRealTime(location);
+                document.getElementById('realTime').innerHTML = `${time}<br><span style="font-size:0.6rem;">${date}</span>`;
+            }, 1000);
+        }
+        
+        window.changeLocation = function() {
+            currentLocation = document.getElementById('locationSelect').value;
+            localStorage.setItem('tools_location', currentLocation);
+            showToast(`🌍 Lokasi diubah`);
+            startClock();
+        };
+        
+        // ==================== LOGIN ====================
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (!username || !password) {
+                errorDiv.innerHTML = "Isi username dan password!";
+                errorDiv.classList.add('show');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const usersRef = ref(db, 'users');
+                const snapshot = await get(usersRef);
+                if (!snapshot.exists()) { showError("Username tidak ditemukan!"); hideLoading(); return; }
+                
+                const hashedInput = await hashPassword(password);
+                let userId = null, userData = null;
+                const users = snapshot.val();
+                for (let key in users) {
+                    if (users[key].username === username && users[key].passwordHash === hashedInput) {
+                        userId = key;
+                        userData = users[key];
+                        break;
+                    }
+                }
+                
+                if (!userId) { showError("Password salah!"); hideLoading(); return; }
+                if (userData.isBanned) { showError("Akun telah diblokir!"); hideLoading(); return; }
+                
+                if (userData.deviceId && userData.deviceId !== DEVICE_ID) {
+                    showError("❌ Akun sedang aktif di perangkat lain! Tidak bisa login dari perangkat berbeda.");
+                    hideLoading();
+                    return;
+                }
+                
+                await update(ref(db, `users/${userId}`), { deviceId: DEVICE_ID, lastLogin: new Date().toISOString() });
+                
+                currentUser = userData;
+                currentUserId = userId;
+                localStorage.setItem('tools_username', username);
+                localStorage.setItem('tools_userId', userId);
+                
+                document.getElementById('loginSection').style.display = 'none';
+                
+                const role = userData.role || 'member';
+                if (role === 'premium' || role === 'admin' || role === 'owner') {
+                    document.getElementById('premiumWarning').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'flex';
+                    document.getElementById('userInfo').innerHTML = `<i class="fas fa-user"></i> ${username} | ${role.toUpperCase()}`;
+                    document.getElementById('locationSelect').value = currentLocation;
+                    
+                    if (role === 'owner') {
+                        document.getElementById('owner-toggle-btn').style.display = 'block';
+                    }
+                    
+                    await getBatteryStatus();
+                    startClock();
+                    await loadPremiumCategories();
+                    await showMainMenu();
+                } else {
+                    document.getElementById('premiumWarning').style.display = 'block';
+                    document.getElementById('mainApp').style.display = 'none';
+                    document.getElementById('warningUserRole').innerText = role.toUpperCase();
+                }
+                hideLoading();
+            } catch (error) {
+                showError("Terjadi kesalahan!");
+                hideLoading();
+            }
+        }
+        
+        function showError(msg) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.innerHTML = msg;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 3000);
+        }
+        
+        async function handleLogout() {
+            if (currentUserId) {
+                await update(ref(db, `users/${currentUserId}`), { deviceId: null });
+            }
+            localStorage.removeItem('tools_username');
+            localStorage.removeItem('tools_userId');
+            if (clockInterval) clearInterval(clockInterval);
+            location.reload();
+        }
+        
+        function goToWebStore() { window.location.href = 'index.html'; }
+        function goToBuyRole() { window.location.href = 'buy-role.html'; }
+        
+        // ==================== LOAD PREMIUM CATEGORIES & MENUS ====================
+        async function loadPremiumCategories() {
+            const categoriesRef = ref(db, 'premium_categories');
+            onValue(categoriesRef, async (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    premiumCategories = [];
+                    for (let catKey in data) {
+                        const category = data[catKey];
+                        // Load menus untuk kategori ini
+                        const menusRef = ref(db, `premium_menus/${catKey}`);
+                        const menusSnap = await get(menusRef);
+                        const menus = menusSnap.val() ? Object.values(menusSnap.val()) : [];
+                        premiumCategories.push({
+                            id: catKey,
+                            name: category.name,
+                            icon: category.icon || 'fa-gem',
+                            menus: menus
+                        });
+                    }
+                }
+                // Update menu sections
+                const premiumSectionIndex = menuSections.findIndex(s => s.id === 'premium');
+                if (premiumSectionIndex !== -1) {
+                    menuSections.splice(premiumSectionIndex, 1);
+                }
+                
+                // Tambahkan semua kategori premium ke menu sections
+                for (const cat of premiumCategories) {
+                    menuSections.push({
+                        id: `premium-${cat.id}`,
+                        title: `💎 ${cat.name}`,
+                        icon: cat.icon,
+                        items: cat.menus.map(m => ({
+                            cmd: m.cmd,
+                            name: m.name,
+                            desc: m.desc,
+                            icon: m.icon || 'fa-gem'
+                        }))
+                    });
+                }
+                
+                if (currentUser) await showMainMenu();
+                if (currentUser?.role === 'owner') {
+                    await renderPremiumCategoriesList();
+                    await updateCategorySelect();
+                }
+            });
+        }
+        
+        async function renderPremiumCategoriesList() {
+            const container = document.getElementById('premiumCategoriesList');
+            if (!container) return;
+            
+            const categoriesRef = ref(db, 'premium_categories');
+            const snapshot = await get(categoriesRef);
+            const data = snapshot.val();
+            
+            if (!data) {
+                container.innerHTML = '<div style="text-align:center; padding:20px;">Belum ada kategori premium</div>';
+                return;
+            }
+            
+            let html = '';
+            for (let catKey in data) {
+                const cat = data[catKey];
+                const menusRef = ref(db, `premium_menus/${catKey}`);
+                const menusSnap = await get(menusRef);
+                const menus = menusSnap.val() ? Object.values(menusSnap.val()) : [];
+                
+                html += `
+                    <div class="category-item">
+                        <div class="category-header">
+                            <strong><i class="fas ${cat.icon}"></i> ${escapeHtml(cat.name)}</strong>
+                            <button class="btn-danger" onclick="deleteCategory('${catKey}')">Hapus Kategori</button>
+                        </div>
+                        <div class="menu-list">
+                            ${menus.map(m => `
+                                <div class="sub-menu-item">
+                                    <span><code>${escapeHtml(m.cmd)}</code> - ${escapeHtml(m.name)}</span>
+                                    <button class="btn-danger" onclick="deleteMenu('${catKey}', '${m.id}')">Hapus</button>
+                                </div>
+                            `).join('')}
+                            ${menus.length === 0 ? '<div style="font-size:0.7rem; opacity:0.6; padding:8px;">Belum ada menu di kategori ini</div>' : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+        
+        async function updateCategorySelect() {
+            const select = document.getElementById('menuCategorySelect');
+            if (!select) return;
+            
+            const categoriesRef = ref(db, 'premium_categories');
+            const snapshot = await get(categoriesRef);
+            const data = snapshot.val();
+            
+            select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+            if (data) {
+                for (let key in data) {
+                    select.innerHTML += `<option value="${key}">${escapeHtml(data[key].name)}</option>`;
+                }
+            }
+        }
+        
+        window.deleteCategory = async function(categoryId) {
+            if (confirm("Hapus kategori ini? Semua menu di dalamnya juga akan terhapus!")) {
+                await remove(ref(db, `premium_categories/${categoryId}`));
+                await remove(ref(db, `premium_menus/${categoryId}`));
+                showToast("Kategori dihapus!");
+                await loadPremiumCategories();
+                if (currentUser?.role === 'owner') {
+                    await renderPremiumCategoriesList();
+                    await updateCategorySelect();
+                }
+            }
+        };
+        
+        window.deleteMenu = async function(categoryId, menuId) {
+            if (confirm("Hapus menu ini?")) {
+                await remove(ref(db, `premium_menus/${categoryId}/${menuId}`));
+                showToast("Menu dihapus!");
+                await loadPremiumCategories();
+                if (currentUser?.role === 'owner') {
+                    await renderPremiumCategoriesList();
+                }
+            }
+        };
+        
+        // ==================== ADD CATEGORY (OWNER ONLY) ====================
+        document.getElementById('addCategoryBtn')?.addEventListener('click', async () => {
+            const name = document.getElementById('newCategoryName').value.trim();
+            const icon = document.getElementById('newCategoryIcon').value;
+            
+            if (!name) {
+                showToast("Masukkan nama kategori!");
+                return;
+            }
+            
+            await push(ref(db, 'premium_categories'), {
+                name: name,
+                icon: icon,
+                createdBy: currentUser.username,
+                createdAt: new Date().toISOString()
+            });
+            
+            showToast(`✅ Kategori ${name} berhasil ditambahkan!`);
+            document.getElementById('newCategoryName').value = '';
+            await loadPremiumCategories();
+            if (currentUser?.role === 'owner') {
+                await renderPremiumCategoriesList();
+                await updateCategorySelect();
+            }
+        });
+        
+        // ==================== ADD MENU TO CATEGORY (OWNER ONLY) ====================
+        document.getElementById('addPremiumMenuBtn')?.addEventListener('click', async () => {
+            const categoryId = document.getElementById('menuCategorySelect').value;
+            const cmd = document.getElementById('newMenuCmd').value.trim();
+            const name = document.getElementById('newMenuName').value.trim();
+            const desc = document.getElementById('newMenuDesc').value.trim();
+            const icon = document.getElementById('newMenuIcon').value;
+            
+            if (!categoryId) {
+                showToast("Pilih kategori terlebih dahulu!");
+                return;
+            }
+            if (!cmd || !name) {
+                showToast("Isi perintah dan nama menu!");
+                return;
+            }
+            
+            await push(ref(db, `premium_menus/${categoryId}`), {
+                cmd: cmd,
+                name: name,
+                desc: desc || 'Fitur premium eksklusif',
+                icon: icon,
+                createdBy: currentUser.username,
+                createdAt: new Date().toISOString()
+            });
+            
+            showToast(`✅ Menu ${name} berhasil ditambahkan ke kategori!`);
+            document.getElementById('newMenuCmd').value = '';
+            document.getElementById('newMenuName').value = '';
+            document.getElementById('newMenuDesc').value = '';
+            await loadPremiumCategories();
+            if (currentUser?.role === 'owner') {
+                await renderPremiumCategoriesList();
+            }
+        });
+        
+        // ==================== MAIN MENU ====================
+        function getGreeting() {
+            const hour = parseInt(new Date().toLocaleTimeString('id-ID', { timeZone: currentLocation, hour: '2-digit', hour12: false }));
+            if (hour >= 5 && hour < 11) return 'Pagi';
+            if (hour >= 11 && hour < 15) return 'Siang';
+            if (hour >= 15 && hour < 18) return 'Sore';
+            return 'Malam';
+        }
+        
+        async function showMainMenu() {
+            if (!currentUser) return;
+            
+            const { time, date } = getRealTime(currentLocation);
+            const battery = await getBatteryStatus();
+            const roleText = currentUser.role === 'owner' ? '👑 Owner' : (currentUser.role === 'admin' ? '👨‍💼 Admin' : (currentUser.role === 'premium' ? '💎 Premium' : '⭐ Member'));
+            
+            let menuHtml = `
+                <div class="menu-box">
+                    <div class="menu-header"><h2><i class="fas fa-crown"></i> RayyxPrimze Tools</h2><p>Smart Assistant - Siap Membantu Keseharian Mu</p></div>
+                    <div class="profile-card">
+                        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+                        <div class="profile-info">
+                            <div class="name">${escapeHtml(currentUser.username)}</div>
+                            <div class="status">${roleText} | ${getGreeting()}</div>
+                        </div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-item"><i class="fas fa-coins"></i><div class="value">${currentUser.koin || 0}</div><div class="label">Koin</div></div>
+                        <div class="stat-item"><i class="fas fa-battery-${battery.isCharging ? 'bolt' : 'full'}"></i><div class="value">${battery.level}%</div><div class="label">Baterai</div></div>
+                        <div class="stat-item"><i class="fas fa-clock"></i><div class="value">${time}</div><div class="label">Waktu</div></div>
+                    </div>
+                    <div class="menu-sections" id="menuSectionsContainer">
+            `;
+            
+            for (let i = 0; i < menuSections.length; i++) {
+                const section = menuSections[i];
+                const sectionId = `section-${i}`;
+                menuHtml += `
+                    <div class="menu-section" id="${section.id || sectionId}">
+                        <div class="section-title" onclick="toggleSection('${section.id || sectionId}')">
+                            <span><i class="fas ${section.icon}"></i> ${section.title}</span>
+                            <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                        <div class="section-items" id="items-${section.id || sectionId}">
+                `;
+                for (const item of section.items) {
+                    menuHtml += `<div class="menu-item" onclick="setCommand('${item.cmd.split(' ')[0]}')">
+                        <div class="menu-icon"><i class="fas ${item.icon}"></i></div>
+                        <div class="menu-info"><div class="menu-title">${item.name}</div><div class="menu-desc">${item.desc}</div></div>
+                        <i class="fas fa-chevron-right" style="font-size:0.7rem; opacity:0.5;"></i>
+                    </div>`;
+                }
+                menuHtml += `</div></div>`;
+            }
+            
+            menuHtml += `<div style="margin-top:16px; text-align:center; font-size:0.6rem; opacity:0.6;"><i class="fas fa-terminal"></i> Ketik perintah langsung di kolom bawah</div></div></div>`;
+            addMessage('bot', menuHtml, true);
+        }
+        
+        window.toggleSection = function(sectionId) {
+            const itemsDiv = document.getElementById(`items-${sectionId}`);
+            if (itemsDiv) {
+                itemsDiv.classList.toggle('collapsed');
+                const icon = itemsDiv.previousElementSibling.querySelector('.toggle-icon i');
+                if (icon) {
+                    if (itemsDiv.classList.contains('collapsed')) {
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-right');
+                    } else {
+                        icon.classList.remove('fa-chevron-right');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                }
+            }
+        };
+        
+        window.setCommand = function(cmd) {
+            document.getElementById('commandInput').value = cmd + ' ';
+            document.getElementById('commandInput').focus();
+        };
+        
+        // ==================== CHAT FUNCTIONS ====================
+        function addMessage(sender, text, isHtml = false, isImage = false, imageUrl = null, isVideo = false, videoUrl = null) {
+            const container = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user' : 'bot'}`;
+            const avatarBg = sender === 'user' ? 'linear-gradient(95deg, #ff9800, #ff5722)' : 'linear-gradient(135deg, #FFD700, #FF8C00)';
+            let contentHtml = isHtml ? text : (isImage ? `<div>${escapeHtml(text)}</div><img src="${imageUrl}" class="result-image" onclick="window.open('${imageUrl}','_blank')"><div class="button-group"><button class="btn-download" onclick="downloadMedia('${imageUrl}','image')"><i class="fas fa-download"></i> Download</button></div>` : (isVideo ? `<div>${escapeHtml(text)}</div><video src="${videoUrl}" class="result-video" controls></video><div class="button-group"><button class="btn-download" onclick="downloadMedia('${videoUrl}','video')"><i class="fas fa-download"></i> Download</button></div>` : `<div>${escapeHtml(text)}</div>`));
+            messageDiv.innerHTML = `<div class="message-avatar" style="background:${avatarBg}"><i class="fas ${sender === 'user' ? 'fa-user' : 'fa-robot'}"></i></div><div class="message-content"><div class="message-name">${sender === 'user' ? currentUser?.username || 'Anda' : 'Tools Bot'}</div><div class="message-text">${contentHtml}</div><div class="message-time">${new Date().toLocaleTimeString()}</div></div>`;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function showTyping() {
+            const container = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `<div class="message-avatar" style="background:linear-gradient(135deg,#FFD700,#FF8C00)"><i class="fas fa-robot"></i></div><div class="message-content"><div class="message-name">Tools Bot</div><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function hideTyping() { const typing = document.getElementById('typingIndicator'); if (typing) typing.remove(); }
+        function downloadMedia(url) { fetch(url).then(r=>r.blob()).then(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`download_${Date.now()}.jpg`; a.click(); URL.revokeObjectURL(a.href); }); }
+        
+        // ==================== API HANDLERS ====================
+        async function searchTikTok(query) {
+            showTyping();
+            try {
+                const res = await fetch(`${API_BASE}/search/tiktok?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                hideTyping();
+                if (!data.status || !data.result?.length) { addMessage('bot', `❌ Tidak ada hasil untuk "${query}"`); return; }
+                data.result.slice(0, 3).forEach(item => addMessage('bot', `🎵 ${escapeHtml(item.author?.nickname || 'Unknown')}\n❤️ ${item.stats?.likes || 0} likes | 👁️ ${item.stats?.plays || 0} views`, false, false, null, true, item.link));
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        async function aiChat(pesan) {
+            showTyping();
+            try {
+                const res = await fetch(`${API_BASE}/ai/grok?q=${encodeURIComponent(pesan)}`);
+                const data = await res.json();
+                hideTyping();
+                addMessage('bot', data.response || 'Maaf, saya tidak bisa menjawab itu.');
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        function showTime() {
+            const { time, date } = getRealTime(currentLocation);
+            addMessage('bot', `🕐 Waktu saat ini:\n📅 ${date}\n⏰ ${time}`);
+        }
+        
+        async function showBattery() {
+            const battery = await getBatteryStatus();
+            addMessage('bot', `🔋 Status Baterai:\nLevel: ${battery.level}%\nStatus: ${battery.isCharging ? '🔌 Sedang di-charge' : '⚡ Tidak di-charge'}`);
+        }
+        
+        function showLocation() {
+            const select = document.getElementById('locationSelect');
+            const locationName = select.options[select.selectedIndex]?.text || currentLocation;
+            addMessage('bot', `📍 Lokasi Saat Ini:\n🌍 ${locationName}\n🕐 Waktu: ${getRealTime(currentLocation).time}`);
+        }
+        
+        // Fake Maker Functions
+        async function profileFF(nickname, guild, bg) {
+            showTyping();
+            try {
+                const url = `${API_BASE}/maker/profileff?nickname=${encodeURIComponent(nickname)}&guild=${encodeURIComponent(guild)}&bg=${encodeURIComponent(bg)}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                hideTyping();
+                addMessage('bot', `🎮 Profile FF Created!\nNickname: ${nickname}\nGuild: ${guild}`, false, true, blobUrl);
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        async function fakeDana(text) {
+            showTyping();
+            try {
+                const url = `${API_BASE}/maker/fakedana?text=${encodeURIComponent(text)}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                hideTyping();
+                addMessage('bot', `💰 Fake DANA Saldo: Rp ${text}`, false, true, blobUrl);
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        async function bratImage(text) {
+            showTyping();
+            try {
+                const url = `${API_BASE}/maker/brat?text=${encodeURIComponent(text)}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                hideTyping();
+                addMessage('bot', `🎨 Brat Image Created!\nTeks: "${text}"`, false, true, blobUrl);
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        async function bratVideo(text) {
+            showTyping();
+            try {
+                const url = `${API_BASE}/maker/bratvid?text=${encodeURIComponent(text)}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                hideTyping();
+                addMessage('bot', `🎬 Brat Video Created!\nTeks: "${text}"`, false, false, null, true, blobUrl);
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        async function bratGenerator(type, text) {
+            showTyping();
+            try {
+                const url = `${API_BASE}/maker/${type}?text=${encodeURIComponent(text)}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                hideTyping();
+                addMessage('bot', `🎨 Brat ${type.replace('brat', '').toUpperCase()}\nTeks: "${text}"`, false, true, blobUrl);
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        async function fakeGroup(imageUrl, name, members, desc, date) {
+            showTyping();
+            try {
+                const url = `${API_BASE}/maker/fakegroup?image=${encodeURIComponent(imageUrl)}&name=${encodeURIComponent(name)}&members=${encodeURIComponent(members)}&desc=${encodeURIComponent(desc)}&date=${encodeURIComponent(date)}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                hideTyping();
+                addMessage('bot', `👥 Fake Group Created!\nNama: ${name}\nAnggota: ${members}`, false, true, blobUrl);
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        async function fakeChannel(imageUrl, name, followers, desc, date, reach, clean) {
+            showTyping();
+            try {
+                const url = `${API_BASE}/maker/fakech2?image=${encodeURIComponent(imageUrl)}&name=${encodeURIComponent(name)}&followers=${encodeURIComponent(followers)}&desc=${encodeURIComponent(desc)}&date=${encodeURIComponent(date)}&reach=${encodeURIComponent(reach)}&clean=${encodeURIComponent(clean)}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                hideTyping();
+                addMessage('bot', `📺 Fake Channel Created!\nNama: ${name}\nFollowers: ${followers}`, false, true, blobUrl);
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        async function fakeFF(text, bg) {
+            showTyping();
+            try {
+                const url = `${API_BASE}/maker/fakeff?text=${encodeURIComponent(text)}&bg=${encodeURIComponent(bg)}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                hideTyping();
+                addMessage('bot', `🎮 Fake FF Card Created!\nPemain: ${text}\nBackground: ${bg}`, false, true, blobUrl);
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        async function fakeDev(text, imageUrl, verified) {
+            showTyping();
+            try {
+                const url = `${API_BASE}/maker/fakedev?text=${encodeURIComponent(text)}&image=${encodeURIComponent(imageUrl)}&verified=${verified}`;
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                hideTyping();
+                addMessage('bot', `👨‍💻 Fake Dev Card Created!\nDeveloper: ${text}\nVerified: ${verified}`, false, true, blobUrl);
+            } catch(e) { hideTyping(); addMessage('bot', `❌ Error: ${e.message}`); }
+        }
+        
+        // ==================== COMMAND PARSER ====================
+        window.sendCommand = async function() {
+            const input = document.getElementById('commandInput');
+            const command = input.value.trim();
+            if (!command) return;
+            addMessage('user', command);
+            input.value = '';
+            const parts = command.split(' ');
+            const cmd = parts[0].toLowerCase();
+            const args = parts.slice(1);
+            
+            // Menu Utama
+            if (cmd === '.menu') { await showMainMenu(); return; }
+            if (cmd === '.search' && args.length) { await searchTikTok(args.join(' ')); return; }
+            if (cmd === '.ai' && args.length) { await aiChat(args.join(' ')); return; }
+            if (cmd === '.time') { showTime(); return; }
+            if (cmd === '.battery') { await showBattery(); return; }
+            if (cmd === '.location') { showLocation(); return; }
+            
+            // Fake Maker
+            if (cmd === '.profileff') {
+                const nickname = prompt('Masukkan nickname:');
+                if (!nickname) return;
+                const guild = prompt('Masukkan nama guild:');
+                if (!guild) return;
+                const bg = prompt('Masukkan background (1-10):', '1');
+                await profileFF(nickname, guild, bg);
+                return;
+            }
+            if (cmd === '.fakedana' && args.length) { await fakeDana(args.join(' ')); return; }
+            if (cmd === '.brat' && args.length) { await bratImage(args.join(' ')); return; }
+            if (cmd === '.bratvid' && args.length) { await bratVideo(args.join(' ')); return; }
+            if (cmd === '.fakegroup') {
+                const imageUrl = prompt('URL gambar profil grup:');
+                if (!imageUrl) return;
+                const name = prompt('Nama grup:');
+                if (!name) return;
+                const members = prompt('Jumlah anggota:');
+                if (!members) return;
+                const desc = prompt('Deskripsi grup:') || '-';
+                const date = prompt('Tanggal dibuat:') || '-';
+                await fakeGroup(imageUrl, name, members, desc, date);
+                return;
+            }
+            if (cmd === '.fakechannel') {
+                const imageUrl = prompt('URL gambar profil channel:');
+                if (!imageUrl) return;
+                const name = prompt('Nama channel:');
+                if (!name) return;
+                const followers = prompt('Jumlah followers:');
+                if (!followers) return;
+                const desc = prompt('Deskripsi channel:') || '-';
+                const date = prompt('Tanggal dibuat:') || '-';
+                const reach = prompt('Akun dijangkau:') || '-';
+                const clean = prompt('Pengikut bersih:') || '-';
+                await fakeChannel(imageUrl, name, followers, desc, date, reach, clean);
+                return;
+            }
+            if (cmd === '.fakeff' && args.length) {
+                const bg = args[args.length-1];
+                const text = args.slice(0,-1).join(' ');
+                await fakeFF(text, bg);
+                return;
+            }
+            if (cmd === '.fakedev') {
+                const text = prompt('Masukkan nama developer:');
+                if (!text) return;
+                const imageUrl = prompt('URL gambar:');
+                if (!imageUrl) return;
+                const verified = prompt('Verified? (true/false):', 'true');
+                await fakeDev(text, imageUrl, verified);
+                return;
+            }
+            
+            // Brat Styles
+            const bratCmds = ['.bratgura', '.bratanime', '.bratnezuko', '.bratpatrick', '.bratqiqi'];
+            if (bratCmds.includes(cmd) && args.length) {
+                await bratGenerator(cmd.substring(1), args.join(' '));
+                return;
+            }
+            
+            // Cek menu premium dari database
+            for (const cat of premiumCategories) {
+                const foundMenu = cat.menus.find(m => m.cmd === cmd);
+                if (foundMenu) {
+                    addMessage('bot', `✨ Fitur Premium: ${foundMenu.name}\n📝 ${foundMenu.desc}\n\n⚙️ Fitur sedang dalam pengembangan.`);
+                    return;
+                }
+            }
+            
+            addMessage('bot', `❌ Perintah "${cmd}" tidak dikenal. Ketik .menu untuk melihat daftar perintah.`);
+        };
+        
+        document.getElementById('commandInput').addEventListener('keypress', e => { if (e.key === 'Enter') sendCommand(); });
+        
+        // ==================== MUSIC PLAYER ====================
+        let currentAudio = null, isPlaying = false;
+        
+        async function searchMusicAPI(query) {
+            try {
+                const res = await fetch(`https://api.freeapi.app/api/v1/public/youtube/videos?q=${encodeURIComponent(query)}&limit=1`);
+                const data = await res.json();
+                if (data.statusCode === 200 && data.data?.data?.length) {
+                    const v = data.data.data[0];
+                    return { title: v.title, artist: v.channelName, thumbnail: v.thumbnail?.[0]?.url, audioUrl: `https://p.oceansaver.in/ajax/download.php?video=https://www.youtube.com/watch?v=${v.videoId}&format=mp3` };
+                }
+                return null;
+            } catch(e) { return null; }
+        }
+        
+        function playMusic(audioUrl, songData) {
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            currentAudio = new Audio(audioUrl);
+            currentAudio.volume = document.getElementById('floating-volume')?.value / 100 || 0.5;
+            currentAudio.play();
+            isPlaying = true;
+            document.getElementById('floating-thumb').src = songData.thumbnail || 'https://via.placeholder.com/40';
+            document.getElementById('floating-title').innerText = songData.title;
+            document.getElementById('floating-artist').innerText = songData.artist;
+            document.getElementById('floating-music-player').style.display = 'block';
+            document.getElementById('floating-playpause').innerHTML = '<i class="fas fa-pause"></i>';
+            currentAudio.onended = () => { isPlaying = false; document.getElementById('floating-playpause').innerHTML = '<i class="fas fa-play"></i>'; };
+        }
+        
+        function stopMusic() { if (currentAudio) { currentAudio.pause(); currentAudio = null; isPlaying = false; document.getElementById('floating-music-player').style.display = 'none'; } }
+        function pauseMusic() { if (currentAudio) { currentAudio.pause(); isPlaying = false; document.getElementById('floating-playpause').innerHTML = '<i class="fas fa-play"></i>'; } }
+        function resumeMusic() { if (currentAudio) { currentAudio.play(); isPlaying = true; document.getElementById('floating-playpause').innerHTML = '<i class="fas fa-pause"></i>'; } }
+        
+        document.getElementById('floating-playpause')?.addEventListener('click', () => { if (isPlaying) pauseMusic(); else resumeMusic(); });
+        document.getElementById('floating-stop')?.addEventListener('click', stopMusic);
+        document.getElementById('floating-close')?.addEventListener('click', stopMusic);
+        document.getElementById('floating-volume')?.addEventListener('input', e => { if (currentAudio) currentAudio.volume = e.target.value / 100; });
+        
+        function openMusicModal() { document.getElementById('music-modal').style.display = 'flex'; }
+        function closeMusicModal() { document.getElementById('music-modal').style.display = 'none'; }
+        function openOwnerModal() { 
+            document.getElementById('owner-modal').style.display = 'flex'; 
+            renderPremiumCategoriesList();
+            updateCategorySelect();
+        }
+        function closeOwnerModal() { document.getElementById('owner-modal').style.display = 'none'; }
+        
+        document.getElementById('music-toggle-btn')?.addEventListener('click', openMusicModal);
+        document.getElementById('owner-toggle-btn')?.addEventListener('click', openOwnerModal);
+        
+        document.getElementById('music-search-btn')?.addEventListener('click', async () => {
+            const query = document.getElementById('music-search-input').value.trim();
+            if (!query) return;
+            const container = document.getElementById('music-player-container');
+            container.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Mencari...</div>';
+            const song = await searchMusicAPI(query);
+            if (song && song.audioUrl) {
+                container.innerHTML = `<div class="music-song-card"><img class="music-thumb" src="${song.thumbnail}"><div class="music-song-info"><div class="music-song-title">${escapeHtml(song.title)}</div><div class="music-song-artist">${escapeHtml(song.artist)}</div></div><div class="music-controls-panel"><button id="music-play-btn" class="music-control-btn play"><i class="fas fa-play"></i> Putar</button><button id="music-stop-btn" class="music-control-btn stop"><i class="fas fa-stop"></i> Stop</button><button id="music-background-btn" class="music-control-btn bg"><i class="fas fa-window-restore"></i> Background</button></div></div>`;
+                document.getElementById('music-play-btn')?.addEventListener('click', () => playMusic(song.audioUrl, song));
+                document.getElementById('music-stop-btn')?.addEventListener('click', stopMusic);
+                document.getElementById('music-background-btn')?.addEventListener('click', () => { playMusic(song.audioUrl, song); closeMusicModal(); });
+            } else { container.innerHTML = '<div style="text-align:center; padding:20px;">❌ Lagu tidak ditemukan</div>'; }
+        });
+        
+        // ==================== CHECK EXISTING SESSION ====================
+        async function checkExistingSession() {
+            const savedUsername = localStorage.getItem('tools_username');
+            const savedUserId = localStorage.getItem('tools_userId');
+            if (savedUsername && savedUserId) {
+                const userRef = ref(db, `users/${savedUserId}`);
+                const snapshot = await get(userRef);
+                if (snapshot.exists() && !snapshot.val().isBanned) {
+                    currentUser = snapshot.val();
+                    currentUserId = savedUserId;
+                    document.getElementById('loginSection').style.display = 'none';
+                    const role = currentUser.role || 'member';
+                    if (role === 'premium' || role === 'admin' || role === 'owner') {
+                        document.getElementById('premiumWarning').style.display = 'none';
+                        document.getElementById('mainApp').style.display = 'flex';
+                        document.getElementById('userInfo').innerHTML = `<i class="fas fa-user"></i> ${savedUsername} | ${role.toUpperCase()}`;
+                        document.getElementById('locationSelect').value = currentLocation;
+                        if (role === 'owner') {
+                            document.getElementById('owner-toggle-btn').style.display = 'block';
+                        }
+                        await getBatteryStatus();
+                        startClock();
+                        await loadPremiumCategories();
+                        await showMainMenu();
+                    } else {
+                        document.getElementById('premiumWarning').style.display = 'block';
+                        document.getElementById('mainApp').style.display = 'none';
+                        document.getElementById('warningUserRole').innerText = role.toUpperCase();
+                    }
+                }
+            }
+        }
+        
+        // Maintenance Check
+        function checkToolsMaintenance() {
+            const maintenanceRef = ref(db, 'settings/maintenance/tools');
+            onValue(maintenanceRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.active === true) {
+                    document.getElementById('maintenanceMode').style.display = 'flex';
+                    document.getElementById('normalApp').style.display = 'none';
+                    document.getElementById('maintenanceMessage').innerText = data.message || 'Tools Zone sedang dalam perbaikan.';
+                } else {
+                    document.getElementById('maintenanceMode').style.display = 'none';
+                    document.getElementById('normalApp').style.display = 'block';
+                }
+            });
+        }
+        
+        checkToolsMaintenance();
+        checkExistingSession();
+    </script>
+</body>
+</html>

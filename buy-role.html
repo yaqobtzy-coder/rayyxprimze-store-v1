@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Buy Role | RayyxPrimze Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 28px 24px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+        }
+        .logo h1 {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+        }
+        .profile-section {
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile-avatar i { font-size: 2rem; color: #1a1a2e; }
+        .profile-info h3 { font-size: 1.2rem; }
+        .profile-info p { font-size: 0.7rem; opacity: 0.7; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .info-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 10px;
+            text-align: center;
+        }
+        .info-item i { color: #ffd700; margin-right: 5px; }
+        .info-item .label { font-size: 0.6rem; opacity: 0.6; }
+        .info-item .value { font-size: 1rem; font-weight: 700; }
+        
+        .current-role {
+            background: rgba(255,215,0,0.15);
+            border-radius: 20px;
+            padding: 12px;
+            text-align: center;
+            margin-top: 16px;
+        }
+        .current-role .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .badge-member { background: #28a745; }
+        .badge-premium { background: #ffd700; color: #1a1a2e; }
+        .badge-reseller { background: #9C27B0; }
+        .badge-admin { background: #dc3545; }
+        .badge-owner { background: linear-gradient(95deg, #FFD700, #FF8C00); color: #1a1a2e; }
+        
+        .role-cards {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .role-card {
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+        .role-card:hover { background: rgba(255,215,0,0.1); }
+        .role-card.selected {
+            border-color: #ffd700;
+            background: rgba(255,215,0,0.15);
+        }
+        .role-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .role-info h4 { font-size: 1rem; margin-bottom: 4px; }
+        .role-info p { font-size: 0.65rem; opacity: 0.6; }
+        .role-price {
+            text-align: right;
+        }
+        .role-price .price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #ffd700;
+        }
+        .role-price .old-role {
+            font-size: 0.6rem;
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+        
+        .btn-buy {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #0a0a1a;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 16px;
+        }
+        .btn-buy:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-back {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 40px;
+            font-weight: 600;
+            color: #ffd700;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 2000;
+            border-left: 4px solid #ffd700;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .auth-card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 32px 28px;
+            text-align: center;
+        }
+        .auth-card input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 40px;
+            color: white;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <!-- AUTH SECTION (Login dulu) -->
+    <div id="authSection" class="container" style="display: flex; align-items: center; justify-content: center;">
+        <div class="auth-card">
+            <h2><i class="fas fa-crown"></i> Buy Role</h2>
+            <p style="margin: 16px 0;">Login untuk upgrade role akun Anda</p>
+            <input type="text" id="loginUsername" placeholder="Username">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button id="loginBtn" style="width:100%; padding:16px; background:#ffd700; border:none; border-radius:40px; font-weight:bold;">MASUK</button>
+            <p style="margin-top:12px;"><a href="index.html" style="color:#ffd700;">Kembali ke Store</a></p>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" style="display: none;">
+        <div class="container">
+            <div class="card">
+                <div class="logo">
+                    <h1><i class="fas fa-crown"></i> Upgrade Role</h1>
+                    <p style="text-align:center; font-size:0.7rem;">Tingkatkan akses akun Anda</p>
+                </div>
+
+                <!-- Profile Section -->
+                <div class="profile-section" id="profileSection">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileUsername">-</h3>
+                            <p id="profileUserId">ID: -</p>
+                        </div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <i class="fas fa-coins"></i>
+                            <div class="label">Koin</div>
+                            <div class="value" id="profileKoin">0</div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-trophy"></i>
+                            <div class="label">Level</div>
+                            <div class="value" id="profileLevel">ROOKIE</div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div class="label">Device ID</div>
+                            <div class="value" id="profileDevice" style="font-size:0.6rem;">-</div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-calendar"></i>
+                            <div class="label">Bergabung</div>
+                            <div class="value" id="profileJoined">-</div>
+                        </div>
+                    </div>
+                    <div class="current-role">
+                        <span style="font-size:0.7rem;">Role Saat Ini</span><br>
+                        <span class="badge" id="currentRoleBadge">MEMBER</span>
+                    </div>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="role-cards" id="roleCards">
+                    <div class="role-card" data-role="premium" data-price="30000">
+                        <div class="role-info">
+                            <h4><i class="fas fa-gem"></i> Premium</h4>
+                            <p>Akses Tools Zone & fitur eksklusif</p>
+                        </div>
+                        <div class="role-price">
+                            <div class="price">Rp 30.000</div>
+                        </div>
+                    </div>
+                    <div class="role-card" data-role="reseller" data-price="50000">
+                        <div class="role-info">
+                            <h4><i class="fas fa-store"></i> Reseller</h4>
+                            <p>Jual produk & dapat komisi</p>
+                        </div>
+                        <div class="role-price">
+                            <div class="price">Rp 50.000</div>
+                        </div>
+                    </div>
+                    <div class="role-card" data-role="admin" data-price="80000">
+                        <div class="role-info">
+                            <h4><i class="fas fa-user-shield"></i> Admin</h4>
+                            <p>Kelola produk & pesanan</p>
+                        </div>
+                        <div class="role-price">
+                            <div class="price">Rp 80.000</div>
+                        </div>
+                    </div>
+                    <div class="role-card" data-role="owner" data-price="120000">
+                        <div class="role-info">
+                            <h4><i class="fas fa-crown"></i> Owner</h4>
+                            <p>Akses penuh semua fitur</p>
+                        </div>
+                        <div class="role-price">
+                            <div class="price">Rp 120.000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-buy" id="buyBtn">
+                    <i class="fas fa-shopping-cart"></i> LANJUTKAN PEMBAYARAN
+                </button>
+                <button class="btn-back" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i> KEMBALI
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYMENT MODAL -->
+    <div id="paymentModal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; justify-content:center; align-items:center; padding:20px;">
+        <div style="background:#1a1a2e; border-radius:48px; padding:32px; max-width:400px; width:100%; text-align:center;">
+            <div id="paymentStatusIcon" style="width:80px;height:80px;background:#ffc107;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                <i class="fas fa-clock" style="font-size:3rem;color:#1a1a2e;"></i>
+            </div>
+            <h3 id="paymentTitle">Menunggu Pembayaran</h3>
+            <p id="paymentMessage" style="margin:16px 0; font-size:0.85rem;">Scan QRIS di bawah untuk membayar</p>
+            <img id="qrisImage" style="width:100%; max-width:250px; margin:10px auto; background:white; padding:10px; border-radius:20px;">
+            <div style="background:rgba(0,0,0,0.3); border-radius:20px; padding:12px; margin:16px 0; text-align:left;">
+                <p><strong>ID Transaksi:</strong> <span id="transaksiId">-</span></p>
+                <p><strong>Total Bayar:</strong> <span id="totalBayar">Rp 0</span></p>
+                <p><strong>Role Baru:</strong> <span id="newRoleName">-</span></p>
+            </div>
+            <button id="checkPaymentBtn" style="width:100%; padding:14px; background:#ffd700; border:none; border-radius:40px; font-weight:bold; margin-bottom:10px;">Cek Status Pembayaran</button>
+            <button id="closePaymentBtn" style="width:100%; padding:14px; background:transparent; border:1px solid #ffd700; border-radius:40px; color:#ffd700; cursor:pointer;">Batal</button>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;">Memproses...</p>
+    </div>
+
+    <script type="module">
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+            authDomain: "rayy-digital-store.firebaseapp.com",
+            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-digital-store",
+            storageBucket: "rayy-digital-store.firebasestorage.app",
+            messagingSenderId: "537690791174",
+            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // ZAKKI API
+        const ZAKI_API_URL = 'https://qris.zakki.store/topup';
+        const ZAKI_CHECK_URL = 'https://qris.zakki.store/cektopup';
+        const ZAKI_TOKEN = '13db95d8e39ea2';
+        const USER_ID = 'WvzD';
+
+        // Variables
+        let currentUser = null;
+        let currentUserId = null;
+        let selectedRole = null;
+        let selectedPrice = null;
+        let pendingTransaction = null;
+        let checkInterval = null;
+
+        // Device ID untuk 1 akun 1 device
+        const DEVICE_ID = localStorage.getItem('buyrole_device_id') || 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 16);
+        localStorage.setItem('buyrole_device_id', DEVICE_ID);
+
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
+        function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
+
+        // Hash password
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // ==================== LOGIN ====================
+        document.getElementById("loginBtn")?.addEventListener("click", async () => {
+            const username = document.getElementById("loginUsername").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            if (!username || !password) {
+                showToast("Isi username dan password!");
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const usersRef = ref(db, 'users');
+                const snapshot = await get(usersRef);
+                
+                if (!snapshot.exists()) {
+                    showToast("Username tidak ditemukan!");
+                    hideLoading();
+                    return;
+                }
+
+                const hashedInput = await hashPassword(password);
+                let userId = null;
+                let userData = null;
+                const users = snapshot.val();
+
+                for (let key in users) {
+                    if (users[key].username === username && users[key].passwordHash === hashedInput) {
+                        userId = key;
+                        userData = users[key];
+                        break;
+                    }
+                }
+
+                if (!userId) {
+                    showToast("Password salah!");
+                    hideLoading();
+                    return;
+                }
+
+                if (userData.isBanned) {
+                    showToast("Akun telah diblokir!");
+                    hideLoading();
+                    return;
+                }
+
+                // CEK 1 AKUN 1 DEVICE
+                if (userData.deviceId && userData.deviceId !== DEVICE_ID) {
+                    showToast("❌ Akun sedang aktif di perangkat lain! Tidak bisa login dari perangkat berbeda.");
+                    hideLoading();
+                    return;
+                }
+
+                // Update device ID
+                await update(ref(db, `users/${userId}`), { deviceId: DEVICE_ID, lastLogin: new Date().toISOString() });
+
+                currentUser = userData;
+                currentUserId = userId;
+
+                localStorage.setItem('buyrole_userId', userId);
+                localStorage.setItem('buyrole_username', username);
+
+                document.getElementById("authSection").style.display = "none";
+                document.getElementById("mainApp").style.display = "block";
+
+                loadUserProfile();
+                hideLoading();
+            } catch (error) {
+                console.error("Login error:", error);
+                showToast("Terjadi kesalahan!");
+                hideLoading();
+            }
+        });
+
+        function goBack() { window.location.href = 'index.html'; }
+
+        // ==================== LOAD USER PROFILE ====================
+        async function loadUserProfile() {
+            if (!currentUserId) return;
+
+            const userRef = ref(db, `users/${currentUserId}`);
+            const snapshot = await get(userRef);
+            
+            if (snapshot.exists()) {
+                const user = snapshot.val();
+                document.getElementById('profileUsername').innerText = user.username;
+                document.getElementById('profileUserId').innerHTML = `ID: ${currentUserId.substring(0, 12)}...`;
+                document.getElementById('profileKoin').innerText = (user.koin || 0).toLocaleString();
+                document.getElementById('profileLevel').innerText = user.level || 'ROOKIE';
+                document.getElementById('profileDevice').innerText = user.deviceId ? user.deviceId.substring(0, 15) + '...' : 'Tidak terdaftar';
+                document.getElementById('profileJoined').innerText = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-';
+                
+                // Update role badge
+                const roleBadge = document.getElementById('currentRoleBadge');
+                const currentRole = (user.role || 'member').toUpperCase();
+                roleBadge.innerText = currentRole;
+                roleBadge.className = `badge badge-${user.role || 'member'}`;
+                
+                // Disable role cards yang levelnya lebih rendah atau sama
+                const roleCards = document.querySelectorAll('.role-card');
+                const roleLevels = { 'member': 0, 'premium': 1, 'reseller': 2, 'admin': 3, 'owner': 4 };
+                const currentLevel = roleLevels[user.role || 'member'];
+                
+                roleCards.forEach(card => {
+                    const role = card.getAttribute('data-role');
+                    const roleLevel = roleLevels[role];
+                    if (roleLevel <= currentLevel) {
+                        card.classList.add('disabled');
+                        card.style.opacity = '0.5';
+                        card.style.cursor = 'not-allowed';
+                    } else {
+                        card.classList.remove('disabled');
+                        card.style.opacity = '1';
+                        card.style.cursor = 'pointer';
+                    }
+                });
+            }
+        }
+
+        // ==================== ROLE SELECTION ====================
+        let selectedCard = null;
+        
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.addEventListener('click', () => {
+                if (card.classList.contains('disabled')) {
+                    showToast("Anda sudah memiliki role ini atau lebih tinggi!");
+                    return;
+                }
+                
+                // Remove selection from all cards
+                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedCard = card;
+                selectedRole = card.getAttribute('data-role');
+                selectedPrice = parseInt(card.getAttribute('data-price'));
+                
+                // Enable buy button
+                document.getElementById('buyBtn').disabled = false;
+            });
+        });
+
+        // ==================== PAYMENT ====================
+        async function createPayment() {
+            showLoading();
+            
+            try {
+                const response = await fetch(ZAKI_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        token: ZAKI_TOKEN, 
+                        nominal: selectedPrice,
+                        id_user: USER_ID
+                    })
+                });
+                
+                const result = await response.json();
+                hideLoading();
+                
+                if (result.code === 201 && result.status === "success") {
+                    pendingTransaction = result.data;
+                    
+                    // Tampilkan modal payment
+                    document.getElementById('qrisImage').src = pendingTransaction.qris_image;
+                    document.getElementById('transaksiId').innerText = pendingTransaction.id_transaksi;
+                    document.getElementById('totalBayar').innerHTML = `Rp ${pendingTransaction.rincian.total_bayar.toLocaleString()}`;
+                    document.getElementById('newRoleName').innerHTML = selectedRole.toUpperCase();
+                    document.getElementById('paymentModal').style.display = 'flex';
+                    
+                    // Start auto check
+                    startAutoCheck();
+                    
+                    // Set countdown expired
+                    if (pendingTransaction.expired_at) {
+                        startCountdown(new Date(pendingTransaction.expired_at));
+                    }
+                } else {
+                    showToast("Gagal membuat pembayaran: " + (result.message || "Unknown error"));
+                }
+            } catch (error) {
+                hideLoading();
+                showToast("Error koneksi ke payment gateway!");
+                console.error(error);
+            }
+        }
+        
+        function startAutoCheck() {
+            if (checkInterval) clearInterval(checkInterval);
+            let checkCount = 0;
+            checkInterval = setInterval(async () => {
+                checkCount++;
+                if (checkCount > 30) {
+                    clearInterval(checkInterval);
+                    return;
+                }
+                await autoCheckStatus();
+            }, 5000);
+        }
+        
+        async function autoCheckStatus() {
+            if (!pendingTransaction || !pendingTransaction.id_transaksi) return;
+            
+            try {
+                const response = await fetch(`${ZAKI_CHECK_URL}?idtopup=${pendingTransaction.id_transaksi}`);
+                const result = await response.json();
+                
+                if (result.code === 200 && result.kategori_status === "SUCCESS") {
+                    clearInterval(checkInterval);
+                    await processSuccess();
+                }
+            } catch (error) {
+                console.error("Auto check error:", error);
+            }
+        }
+        
+        async function checkPaymentStatus() {
+            if (!pendingTransaction || !pendingTransaction.id_transaksi) {
+                showToast("Tidak ada transaksi pending!");
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch(`${ZAKI_CHECK_URL}?idtopup=${pendingTransaction.id_transaksi}`);
+                const result = await response.json();
+                hideLoading();
+                
+                if (result.code === 200 && result.kategori_status === "SUCCESS") {
+                    if (checkInterval) clearInterval(checkInterval);
+                    await processSuccess();
+                } else if (result.kategori_status === "PENDING") {
+                    showToast("⏳ Pembayaran masih pending. Silakan selesaikan pembayaran.");
+                } else {
+                    showToast("❌ Pembayaran belum terdeteksi. Silakan scan QRIS dan bayar.");
+                }
+            } catch (error) {
+                hideLoading();
+                showToast("Error mengecek status pembayaran!");
+            }
+        }
+        
+        async function processSuccess() {
+            // Update role user di database
+            const userRef = ref(db, `users/${currentUserId}`);
+            await update(userRef, { 
+                role: selectedRole,
+                updatedRoleAt: new Date().toISOString()
+            });
+            
+            // Simpan ke riwayat transaksi
+            const historyRef = ref(db, `transactions/${currentUserId}`);
+            await push(historyRef, {
+                type: 'upgrade_role',
+                productName: `Upgrade ke ${selectedRole.toUpperCase()}`,
+                amount: selectedPrice,
+                transactionId: pendingTransaction.id_transaksi,
+                status: 'success',
+                timestamp: Date.now()
+            });
+            
+            // Tutup modal
+            document.getElementById('paymentModal').style.display = 'none';
+            
+            // Redirect ke halaman sukses
+            localStorage.setItem('lastTransactionId', pendingTransaction.id_transaksi);
+            localStorage.setItem('lastProductName', `Upgrade Role ${selectedRole.toUpperCase()}`);
+            localStorage.setItem('lastAmount', selectedPrice);
+            
+            window.location.href = `success.html?type=role&role=${selectedRole}`;
+        }
+        
+        function startCountdown(expiredTime) {
+            const countdownInterval = setInterval(() => {
+                const now = new Date();
+                const diff = expiredTime - now;
+                
+                if (diff <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('paymentMessage').innerHTML = '⚠️ QRIS telah kadaluarsa. Silakan buat pesanan baru.';
+                } else {
+                    const minutes = Math.floor(diff / 60000);
+                    const seconds = Math.floor((diff % 60000) / 1000);
+                    document.getElementById('paymentMessage').innerHTML = `⏰ Sisa waktu: ${minutes}m ${seconds}s`;
+                }
+            }, 1000);
+        }
+        
+        document.getElementById('buyBtn')?.addEventListener('click', () => {
+            if (!selectedRole) {
+                showToast("Pilih role terlebih dahulu!");
+                return;
+            }
+            createPayment();
+        });
+        
+        document.getElementById('checkPaymentBtn')?.addEventListener('click', checkPaymentStatus);
+        document.getElementById('closePaymentBtn')?.addEventListener('click', () => {
+            document.getElementById('paymentModal').style.display = 'none';
+            if (checkInterval) clearInterval(checkInterval);
+        });
+
+        // Check existing session
+        async function checkSession() {
+            const savedUserId = localStorage.getItem('buyrole_userId');
+            if (savedUserId) {
+                const userRef = ref(db, `users/${savedUserId}`);
+                const snapshot = await get(userRef);
+                if (snapshot.exists() && !snapshot.val().isBanned) {
+                    currentUser = snapshot.val();
+                    currentUserId = savedUserId;
+                    document.getElementById("authSection").style.display = "none";
+                    document.getElementById("mainApp").style.display = "block";
+                    loadUserProfile();
+                }
+            }
+        }
+        
+        checkSession();
+    </script>
+</body>
+</html>

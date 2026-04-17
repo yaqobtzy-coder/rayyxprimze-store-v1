@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sukses | RayyxPrimze Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .success-card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 40px 28px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            width: 100%;
+            text-align: center;
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .ceklis {
+            width: 100px;
+            height: 100px;
+            background: #28a745;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: scaleIn 0.5s ease;
+        }
+        .ceklis i { font-size: 4rem; color: white; }
+        @keyframes scaleIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .success-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #28a745;
+            margin-bottom: 16px;
+        }
+        .success-message {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .transaction-details {
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 16px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .transaction-details p { margin-bottom: 8px; font-size: 0.85rem; }
+        .transaction-details .label { opacity: 0.6; }
+        .transaction-details .value { font-weight: 600; color: #ffd700; }
+        .info-box {
+            background: rgba(255,215,0,0.1);
+            border-radius: 16px;
+            padding: 12px;
+            margin-top: 16px;
+            font-size: 0.8rem;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #0a0a1a;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 40px;
+            font-weight: 600;
+            color: #ffd700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .countdown {
+            font-size: 0.8rem;
+            color: #ffc107;
+            margin-top: 16px;
+        }
+        .warning-box {
+            background: rgba(255,193,7,0.15);
+            border-left: 3px solid #ffc107;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="container">
+        <div class="success-card">
+            <div class="logo">
+                <h1><i class="fas fa-crown"></i> RayyxPrimze</h1>
+                <p>TRANSAKSI BERHASIL</p>
+            </div>
+
+            <div class="ceklis">
+                <i class="fas fa-check"></i>
+            </div>
+
+            <div class="success-title">Transaksi Berhasil!</div>
+            <div class="success-message" id="successMessage">
+                Terima kasih telah berbelanja di RayyxPrimze Store.
+            </div>
+
+            <div class="transaction-details">
+                <p><span class="label">Produk:</span> <span id="detailProduct" class="value">-</span></p>
+                <p><span class="label">Total Bayar:</span> <span id="detailAmount" class="value">Rp 0</span></p>
+                <p><span class="label">ID Transaksi:</span> <span id="detailTransactionId" class="value">-</span></p>
+                <p><span class="label">Tanggal:</span> <span id="detailDate" class="value">-</span></p>
+            </div>
+
+            <div id="additionalInfo" class="info-box" style="display: none;"></div>
+            <div id="warningInfo" class="warning-box" style="display: none;"></div>
+
+            <button class="btn-primary" onclick="goToStore()">
+                <i class="fas fa-home"></i> Kembali ke Beranda
+            </button>
+            <button class="btn-secondary" onclick="goToTools()" id="toolsBtn" style="display: none;">
+                <i class="fas fa-terminal"></i> Buka Tools Zone
+            </button>
+
+            <div id="countdownArea" class="countdown"></div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const type = urlParams.get('type') || localStorage.getItem('lastCategory') || 'product';
+        const transactionId = urlParams.get('id') || localStorage.getItem('lastTransactionId');
+        const productName = urlParams.get('product') || localStorage.getItem('lastProductName');
+        const amount = urlParams.get('amount') || localStorage.getItem('lastAmount');
+        const newRole = urlParams.get('role') || localStorage.getItem('lastNewRole');
+
+        // Tampilkan detail produk
+        if (productName) document.getElementById('detailProduct').innerText = decodeURIComponent(productName);
+        if (amount) document.getElementById('detailAmount').innerText = 'Rp ' + parseInt(amount).toLocaleString();
+        if (transactionId) document.getElementById('detailTransactionId').innerText = transactionId;
+        document.getElementById('detailDate').innerText = new Date().toLocaleString();
+
+        // Tampilkan pesan sesuai jenis transaksi
+        const successMessage = document.getElementById('successMessage');
+        const additionalInfo = document.getElementById('additionalInfo');
+        const warningInfo = document.getElementById('warningInfo');
+        const toolsBtn = document.getElementById('toolsBtn');
+
+        if (type === 'sewa') {
+            successMessage.innerHTML = '✅ Pembayaran berhasil! Pesanan Anda sedang diproses oleh admin.<br>Mohon tunggu konfirmasi melalui WhatsApp.';
+            additionalInfo.style.display = 'block';
+            additionalInfo.innerHTML = '<i class="fab fa-whatsapp"></i> <strong>Informasi:</strong><br>Admin akan segera menghubungi Anda via WhatsApp untuk konfirmasi pesanan sewa bot.';
+        } 
+        else if (type === 'script') {
+            successMessage.innerHTML = '✅ Pembayaran berhasil! Link download script akan segera dikirim.<br>Cek email atau WhatsApp Anda.';
+            additionalInfo.style.display = 'block';
+            additionalInfo.innerHTML = '<i class="fas fa-download"></i> <strong>Informasi:</strong><br>Link download script akan dikirim ke WhatsApp/email Anda dalam waktu maksimal 5 menit.';
+        }
+        else if (type === 'role' || newRole) {
+            const roleName = newRole ? newRole.toUpperCase() : 'PREMIUM';
+            successMessage.innerHTML = `🎉 Selamat! Akun Anda berhasil di-upgrade ke <strong>${roleName}</strong>!`;
+            additionalInfo.style.display = 'block';
+            additionalInfo.innerHTML = `<i class="fas fa-gem"></i> <strong>Role Baru: ${roleName}</strong><br>Fitur-fitur eksklusif sekarang sudah bisa Anda akses.`;
+            toolsBtn.style.display = 'block';
+            warningInfo.style.display = 'block';
+            warningInfo.innerHTML = '<i class="fas fa-info-circle"></i> Silakan logout dan login kembali untuk mengaktifkan role baru Anda.';
+        }
+        else {
+            successMessage.innerHTML = '✅ Transaksi berhasil! Terima kasih telah berbelanja di RayyxPrimze Store.';
+        }
+
+        function goToStore() { 
+            localStorage.removeItem('pendingOrder');
+            localStorage.removeItem('sewaData');
+            localStorage.removeItem('lastTransactionId');
+            localStorage.removeItem('lastProductName');
+            localStorage.removeItem('lastAmount');
+            localStorage.removeItem('lastCategory');
+            localStorage.removeItem('lastNewRole');
+            window.location.href = 'index.html'; 
+        }
+
+        function goToTools() {
+            window.location.href = 'tools.html';
+        }
+
+        // Countdown redirect
+        let seconds = 5;
+        const countdownArea = document.getElementById('countdownArea');
+        const interval = setInterval(() => {
+            seconds--;
+            if (seconds <= 0) {
+                clearInterval(interval);
+                if (type === 'role' || newRole) {
+                    // Untuk upgrade role, arahkan ke tools zone
+                    window.location.href = 'tools.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } else {
+                if (type === 'role' || newRole) {
+                    countdownArea.innerHTML = `⏰ Akan diarahkan ke Tools Zone dalam ${seconds} detik...`;
+                } else {
+                    countdownArea.innerHTML = `⏰ Akan diarahkan ke beranda dalam ${seconds} detik...`;
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

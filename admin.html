@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>⚠️ SCROLL = POP UP KING RAYY ⚠️</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      min-height: 200vh; /* biasa bisa scroll panjang */
+      background: radial-gradient(circle at 30% 10%, #1a0a05, #000000);
+      font-family: 'Courier New', 'Fira Code', monospace;
+      padding: 1rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* efek garis glitch */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(0deg, rgba(255,30,0,0.08) 0px, rgba(255,30,0,0.08) 2px, transparent 2px, transparent 10px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .warning-container {
+      max-width: 950px;
+      width: 100%;
+      margin: 2rem auto;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(12px);
+      border: 4px solid #ff2200;
+      border-radius: 50px;
+      box-shadow: 0 0 0 5px rgba(255, 50, 0, 0.5), 0 25px 45px rgba(0,0,0,0.7);
+      padding: 2rem 2rem 2rem 2rem;
+      animation: borderBlast 0.9s infinite alternate;
+      position: relative;
+      z-index: 20;
+    }
+
+    @keyframes borderBlast {
+      0% { border-color: #ff3300; box-shadow: 0 0 0 3px #ff3300aa; }
+      100% { border-color: #ff8855; box-shadow: 0 0 0 8px #ff4411aa, 0 0 30px red; }
+    }
+
+    /* TEKS BERJALAN */
+    .marquee-king {
+      background: #2a0600;
+      padding: 12px 5px;
+      border-radius: 60px;
+      margin-bottom: 25px;
+      border: 1px solid #ff7744;
+      overflow: hidden;
+      white-space: nowrap;
+      box-shadow: inset 0 0 10px #ff330055, 0 5px 10px black;
+    }
+
+    .marquee-king span {
+      display: inline-block;
+      font-size: 1.7rem;
+      font-weight: 900;
+      font-family: monospace;
+      color: #ffbb77;
+      text-shadow: 0 0 4px #ff4400, 0 0 8px red;
+      letter-spacing: 2px;
+      animation: slideText 14s linear infinite;
+      padding-right: 50px;
+    }
+
+    @keyframes slideText {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .marquee-king span::after {
+      content: " 🔥 HANYA KING RAYY YANG BISA AKSES 🔥 ⚡ KING RAYY RAJA ADMIN ⚡ 😈🔥😈🔥 ";
+    }
+
+    .angry-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .main-insult {
+      font-size: clamp(1.5rem, 6vw, 2.6rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #ff884d, #ff2200);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 3px darkred;
+    }
+
+    .insult-block {
+      background: #1f0a04dd;
+      border-radius: 30px;
+      padding: 1.2rem;
+      margin: 20px 0;
+      text-align: center;
+      border-left: 6px solid #ff4411;
+    }
+
+    .insult-text {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ffaa77;
+      word-break: break-word;
+    }
+
+    .middle-finger-area {
+      font-size: 3rem;
+      text-align: center;
+      margin: 12px 0;
+      letter-spacing: 12px;
+      filter: drop-shadow(0 0 5px red);
+    }
+
+    .data-moved {
+      background: #000000aa;
+      padding: 15px;
+      border-radius: 28px;
+      font-size: 1.2rem;
+      text-align: center;
+      color: #ffaa66;
+      border: 1px solid #ff6644;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    .king-button-area {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0 20px;
+    }
+
+    .btn-king-oke {
+      background: radial-gradient(circle at 30% 10%, #ff7722, #aa3300);
+      border: none;
+      padding: 16px 35px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+      color: #fff0c0;
+      text-shadow: 2px 2px 0 #6b2e00;
+      border-radius: 80px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #4a1e00;
+      transition: 0.07s linear;
+      letter-spacing: 3px;
+    }
+
+    .btn-king-oke:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #4a1e00;
+    }
+
+    .fake-terminal {
+      background: #030303cc;
+      padding: 12px;
+      border-radius: 24px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #6eff9e;
+      margin-top: 20px;
+      border-left: 5px solid #ff4422;
+      word-break: break-word;
+    }
+
+    .tamper-alert {
+      background: #2a0a02;
+      padding: 12px;
+      border-radius: 25px;
+      color: #ff8866;
+      text-align: center;
+      font-weight: bold;
+      margin-top: 18px;
+      font-size: 1rem;
+    }
+
+    .glitch-attempt {
+      font-size: 0.8rem;
+      text-align: center;
+      color: #ffaa77;
+      margin-top: 20px;
+      border-top: 1px dashed #ff4422;
+      padding-top: 15px;
+    }
+
+    /* buat efek space scroll lebih banyak */
+    .extra-scroll-space {
+      height: 120px;
+      text-align: center;
+      color: #ff884d;
+      margin-top: 30px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #11000077;
+      border-radius: 40px;
+      padding: 20px;
+    }
+
+    @media (max-width: 550px) {
+      .warning-container { padding: 1.2rem; }
+      .insult-text { font-size: 1.1rem; }
+      .btn-king-oke { font-size: 1.2rem; padding: 12px 20px; }
+      .marquee-king span { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="warning-container">
+  <!-- TEKS BERJALAN : HANYA KING RAYY YANG BISA AKSES -->
+  <div class="marquee-king">
+    <span>🚀🔥 HANYA KING RAYY YANG BISA AKSES 🔥🚀 👑 KING RAYY RAJA SEJATI 👑 💀💀💀 </span>
+  </div>
+
+  <div class="angry-header">
+    <div class="main-insult">
+      ⚠️ PERINGATAN KERAS UNTUK KACUNG ANJING ⚠️
+    </div>
+  </div>
+
+  <div class="insult-block">
+    <div class="insult-text">
+      💢 Mau ngapain Lo kacung anjing nge akses tombol admin 😹😹😹 🖕<br>
+      gak akan lu temuin web asli nya soalnya gua pindahin data nya 😹😹😹😹😹🖕🖕🖕🖕<br>
+      mau otak Atik ya lu gak akan bisa memek ngentod 💢
+    </div>
+  </div>
+
+  <div class="middle-finger-area">
+    🖕🖕🖕🖕🖕🖕🖕🖕🖕
+  </div>
+
+  <div class="data-moved">
+    🔥 DATA ASLI SUDAH DIPINDAHKAN! WEB ASLI HILANG! 🔥<br>
+    😹 GAK AKAN PERNAH KETEMU, KONTOL 😹
+  </div>
+
+  <!-- TOMBOL OKE KING RAYY (TETAP ADA, TAPI SCROLL JUGA BIKIN POPUP) -->
+  <div class="king-button-area">
+    <button class="btn-king-oke" id="kingOkeBtn">👑 TEKAN OKE KING RAYY 👑</button>
+  </div>
+
+  <div class="fake-terminal">
+    <span>➜ root@system:~#</span> akses_admin --check<br>
+    <span>➜ [ACCESS DENIED]</span> HANYA KING RAYY YANG MEMILIKI IZIN!<br>
+    <span>➜ $</span> <span style="color:#ff8866">./pindah_data --migrate</span> -> Sukses! Data asli hilang selamanya.<br>
+    <span>➜ [INFO]</span> KING RAYY ADALAH SATU-SATUNYA YANG BOLEH MASUK.
+  </div>
+
+  <div class="tamper-alert">
+    😾 HANYA KING RAYY YANG BISA AKSES TANPA HAMBATAN 😾
+  </div>
+
+  <div class="glitch-attempt">
+    🛡️ SISTEM ANTIDEBUG | PERCOBAAN OTAK ATIK = GAGAL TOTAL 🛡️<br>
+    💀 TIDAK ADA YANG BISA MENEMUKAN WEB ASLI SELAIN KING RAYY 💀
+  </div>
+</div>
+
+<!-- tambahan area kosong biar bisa scroll panjang dan memicu popup -->
+<div class="extra-scroll-space">
+  ⬇️ SCROLL KE BAWAH MAKA POP UP KING RAYY AKAN MUNCUL 1000x SAAT SCROLL ⬇️<br>
+  😹😹😹 COBA SCROLL, LU BAKALAN KENA SPAM POPUP!! 😹😹😹
+</div>
+<div style="height: 800px; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 20px;">
+  <div style="background:#220d07; padding: 30px; border-radius: 50px; text-align:center; border: 1px solid #ff7744;">
+    <span style="color:#ffaa77; font-size: 1.3rem;">👇 SCROLL LAGI 👇<br> 🔥 POPUP AKAN TERUS MUNCUL 🔥</span>
+  </div>
+  <div style="color:#ffaa55; font-size: 1rem;">⚠️ SETIAP GERAKAN SCROLL = POPUP KING RAYY ⚠️</div>
+  <div style="height: 400px;"></div>
+  <div style="background:#000000aa; padding: 20px; border-radius: 30px; width: 80%; text-align:center;">
+    🖕 GAK AKAN KETEMU WEB ASLI, DATA PINDAH 🖕
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ======================= SPAM POPUP 1000X FUNGSI =======================
+    // Fungsi untuk memunculkan 1000x popup dengan teks "KING RAYY NIH BOSSS"
+    let isSpamming = false;
+    
+    function spamPopupThousandTimes(triggerSource = 'scroll') {
+      if (isSpamming) {
+        // Jika sedang dalam proses spam, beri peringatan tapi tetap lanjut? biar tidak double spam, kita return saja agar tidak menumpuk.
+        // Tapi sesuai request "saat scrol si pop up muncul nya" tiap scroll bisa memicu, tapi harusnya tetap jalan 1000x baru berhenti.
+        // Agar tidak tumpang tindih, kita hanya jalankan jika tidak sedang spam.
+        // Tapi karena scroll bisa terjadi cepat, kita akan tolak jika spam aktif, dan hanya munculkan alert peringatan ringan.
+        // Tapi lebih baik memicu ulang? Tidak, biar tidak crash browser.
+        console.log("Spam sedang berjalan, abaikan trigger scroll");
+        return;
+      }
+      isSpamming = true;
+      let count = 0;
+      const totalSpam = 1000;
+      let intervalId = setInterval(() => {
+        if (count < totalSpam) {
+          alert("👑 KING RAYY NIH BOSSS 👑\n🔥🔥🔥 ONLY KING RAYY YANG BERHAK AKSES 🔥🔥🔥\n💢 DIPICU OLEH " + triggerSource.toUpperCase() + " 💢");
+          count++;
+        } else {
+          clearInterval(intervalId);
+          isSpamming = false;
+          // setelah selesai, beri tahu
+          setTimeout(() => {
+            alert("✅ 1000x POPUP SELESAI! KING RAYY MAHAGURU! ✅\n😹 SILAHKAN SCROLL LAGI UNTUK SPAM ULANG 😹");
+          }, 100);
+        }
+      }, 0);
+    }
+    
+    // Versi singkat yang langsung memanggil spam 1000x (tanpa menunggu)
+    // Untuk event scroll, kita panggil fungsi di atas.
+    
+    // ========== SCROLL DETECTION ==========
+    // Variabel untuk mencegah terlalu banyak panggilan saat scroll (debounce sederhana)
+    let scrollCooldown = false;
+    
+    function onUserScroll() {
+      if (scrollCooldown) return; // biar tidak membanjiri panggilan setiap milimeter scroll, tapi tetap ketika scroll dia akan memicu spam 1000x.
+      // Setiap scroll akan memicu spam 1000x (satu kali per scroll gesture)
+      // Namun karena popup 1000x butuh waktu, kita pakai cooldown 1 detik agar tidak double trigger berlebihan.
+      scrollCooldown = true;
+      
+      // Trigger spam 1000x dengan indikator dari SCROLL
+      if (!isSpamming) {
+        spamPopupThousandTimes('SCROLL');
+      } else {
+        // jika sedang spam, tetap kasih efek visual peringatan
+        let warnDiv = document.createElement('div');
+        warnDiv.innerText = '⚠️ SPAM POPUP SEDANG BERJALAN! TUNGGU SAMPAI 1000x SELESAI ⚠️';
+        warnDiv.style.position = 'fixed';
+        warnDiv.style.bottom = '20px';
+        warnDiv.style.left = '20px';
+        warnDiv.style.backgroundColor = '#aa3300';
+        warnDiv.style.color = 'white';
+        warnDiv.style.padding = '8px 15px';
+        warnDiv.style.borderRadius = '30px';
+        warnDiv.style.fontWeight = 'bold';
+        warnDiv.style.zIndex = '99999';
+        warnDiv.style.fontFamily = 'monospace';
+        document.body.appendChild(warnDiv);
+        setTimeout(() => warnDiv.remove(), 1500);
+      }
+      
+      setTimeout(() => {
+        scrollCooldown = false;
+      }, 800); // cooldown 0.8 detik, biar gak double spam tiap 1px scroll
+    }
+    
+    // Pasang event listener scroll (akan terpicu setiap kali user menggulung)
+    window.addEventListener('scroll', onUserScroll);
+    
+    // ========== TOMBOL OKE KING RAYY (TETAP BISA MEMICU 1000x POPUP JUGA) ==========
+    const kingBtn = document.getElementById('kingOkeBtn');
+    if (kingBtn) {
+      kingBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!isSpamming) {
+          spamPopupThousandTimes('TOMBOL OKE');
+        } else {
+          alert("⚠️ SABAR KONTOL! POPUP SEDANG BERJALAN 1000X! TUNGGU SAMPAI SELESAI! ⚠️");
+        }
+        // efek visual
+        let notifKing = document.createElement('div');
+        notifKing.innerText = '👑 KING RAYY MENGIRIMKAN 1000 POPUP! (DARI TOMBOL) 👑';
+        notifKing.style.position = 'fixed';
+        notifKing.style.top = '15px';
+        notifKing.style.right = '15px';
+        notifKing.style.backgroundColor = '#ff8800';
+        notifKing.style.color = '#1f1f1f';
+        notifKing.style.padding = '8px 18px';
+        notifKing.style.borderRadius = '40px';
+        notifKing.style.fontWeight = 'bold';
+        notifKing.style.zIndex = '99999';
+        notifKing.style.fontFamily = 'monospace';
+        document.body.appendChild(notifKing);
+        setTimeout(() => notifKing.remove(), 2000);
+      });
+    }
+    
+    // ========== PERLINDUNGAN & PESAN HANYA KING RAYY ==========
+    // Mencegah klik kanan
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      let warn = document.createElement('div');
+      warn.innerText = '🚫 HANYA KING RAYY YANG BOLEH AKSES! LU BUKAN KING RAYY! 🚫';
+      warn.style.position = 'fixed';
+      warn.style.bottom = '20px';
+      warn.style.left = '20px';
+      warn.style.backgroundColor = '#8b0000';
+      warn.style.color = '#ffcc99';
+      warn.style.padding = '8px 18px';
+      warn.style.borderRadius = '20px';
+      warn.style.fontWeight = 'bold';
+      warn.style.zIndex = '9999';
+      document.body.appendChild(warn);
+      setTimeout(() => warn.remove(), 1800);
+      return false;
+    });
+    
+    // Mencegah F12, Ctrl+Shift+I, Ctrl+U
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) || (e.ctrlKey && e.key === 'U')) {
+        e.preventDefault();
+        alert('😹🖕 PERINGATAN UNTUK KACUNG! GAK BISA INSPEK! HANYA KING RAYY YANG BISA AKSES WEB ASLI 🖕😹');
+        return false;
+      }
+    });
+    
+    // console log berisi pesan ancaman
+    console.log("%c👑👑👑 HANYA KING RAYY YANG BISA AKSES DATABASE ASLI 👑👑👑", "color: #ff884d; font-size: 16px; font-weight: bold;");
+    console.log("%c⚠️ Siapa pun selain King Rayy tidak akan menemukan web asli! Data telah dipindahkan! ⚠️", "color: #ff5555");
+    console.log("%c😹😹😹 GUA PINDAHIN DATA, LU GAK AKAN BISA NGAPA-NGAPIN 😹😹😹", "color: orange");
+    
+    // Override copy untuk memperkuat pesan
+    document.addEventListener('copy', (e) => {
+      e.clipboardData.setData('text/plain', '🚫 HANYA KING RAYY YANG MEMILIKI AKSES! WEB ASLINYA SUDAH DIPINDAHKAN! 🚫');
+      e.preventDefault();
+      let cmsg = document.createElement('div');
+      cmsg.innerText = '👑 KOPAS DIBLOKIR! HANYA RAJA YANG BERHAK! 👑';
+      cmsg.style.position = 'fixed';
+      cmsg.style.top = '40%';
+      cmsg.style.left = '30%';
+      cmsg.style.backgroundColor = 'black';
+      cmsg.style.border = '2px solid #ff884d';
+      cmsg.style.padding = '15px';
+      cmsg.style.borderRadius = '30px';
+      cmsg.style.zIndex = '99999';
+      cmsg.style.color = '#ffaa77';
+      document.body.appendChild(cmsg);
+      setTimeout(() => cmsg.remove(), 1200);
+    });
+    
+    // Efek judul berkedip
+    setInterval(() => {
+      let originalTitle = document.title;
+      if (originalTitle.includes('👑')) {
+        document.title = '⚠️ SCROLL = POPUP KING RAYY ⚠️ 👑🔥';
+      } else {
+        document.title = '👑 KING RAYY BOSSS 👑 | SCROLL = SPAM POPUP';
+      }
+    }, 800);
+    
+    // Menampilkan floating notifikasi berkala bahwa hanya King Rayy yang bisa akses
+    setInterval(() => {
+      let floatMsg = document.createElement('div');
+      floatMsg.innerText = '👑👑👑 HANYA KING RAYY YANG BISA AKSES! 👑👑👑';
+      floatMsg.style.position = 'fixed';
+      floatMsg.style.bottom = '70px';
+      floatMsg.style.right = '15px';
+      floatMsg.style.backgroundColor = '#442200dd';
+      floatMsg.style.color = '#ffbb88';
+      floatMsg.style.padding = '6px 12px';
+      floatMsg.style.borderRadius = '30px';
+      floatMsg.style.fontSize = '0.8rem';
+      floatMsg.style.fontWeight = 'bold';
+      floatMsg.style.fontFamily = 'monospace';
+      floatMsg.style.border = '1px solid gold';
+      floatMsg.style.zIndex = '9998';
+      floatMsg.style.backdropFilter = 'blur(4px)';
+      document.body.appendChild(floatMsg);
+      setTimeout(() => floatMsg.remove(), 2800);
+    }, 6000);
+    
+    // Tambahan pesan mengambang statis "SCROLL = POPUP"
+    const scrollWarningDiv = document.createElement('div');
+    scrollWarningDiv.innerText = '⚠️ GULIR HALAMAN = 1000x POPUP "KING RAYY NIH BOSSS" ⚠️';
+    scrollWarningDiv.style.position = 'fixed';
+    scrollWarningDiv.style.bottom = '15px';
+    scrollWarningDiv.style.left = '15px';
+    scrollWarningDiv.style.backgroundColor = '#cc3300cc';
+    scrollWarningDiv.style.color = '#fff2cc';
+    scrollWarningDiv.style.padding = '8px 16px';
+    scrollWarningDiv.style.borderRadius = '30px';
+    scrollWarningDiv.style.fontSize = '12px';
+    scrollWarningDiv.style.fontWeight = 'bold';
+    scrollWarningDiv.style.fontFamily = 'monospace';
+    scrollWarningDiv.style.zIndex = '9999';
+    scrollWarningDiv.style.backdropFilter = 'blur(5px)';
+    document.body.appendChild(scrollWarningDiv);
+    
+    // Deteksi devtools dengan lebar
+    setInterval(() => {
+      if (window.outerWidth - window.innerWidth > 150 || window.outerHeight - window.innerHeight > 150) {
+        let devWarn = document.createElement('div');
+        devWarn.innerText = '⚠️ HANYA KING RAYY YANG BOLEH AKSES! TUTUP DEVTOOLS KACUNG! ⚠️';
+        devWarn.style.position = 'fixed';
+        devWarn.style.bottom = '50%';
+        devWarn.style.left = '20%';
+        devWarn.style.backgroundColor = '#990000';
+        devWarn.style.color = 'white';
+        devWarn.style.padding = '10px';
+        devWarn.style.borderRadius = '20px';
+        devWarn.style.zIndex = '10000';
+        devWarn.style.fontWeight = 'bold';
+        document.body.appendChild(devWarn);
+        setTimeout(() => devWarn.remove(), 1500);
+      }
+    }, 2500);
+    
+    // Tambahan: ketika load halaman, kasih tahu bahwa scroll akan memicu popup
+    setTimeout(() => {
+      let initMsg = document.createElement('div');
+      initMsg.innerText = '🔥👑 SCROLL HALAMAN INI MAKA POPUP KING RAYY AKAN MUNCUL 1000x 👑🔥';
+      initMsg.style.position = 'fixed';
+      initMsg.style.top = '30%';
+      initMsg.style.left = '20%';
+      initMsg.style.right = '20%';
+      initMsg.style.backgroundColor = '#000000cc';
+      initMsg.style.color = '#ffaa66';
+      initMsg.style.padding = '20px';
+      initMsg.style.borderRadius = '40px';
+      initMsg.style.textAlign = 'center';
+      initMsg.style.fontSize = '1.2rem';
+      initMsg.style.fontWeight = 'bold';
+      initMsg.style.border = '3px solid #ff4400';
+      initMsg.style.zIndex = '10001';
+      initMsg.style.backdropFilter = 'blur(8px)';
+      document.body.appendChild(initMsg);
+      setTimeout(() => initMsg.remove(), 4000);
+    }, 500);
+    
+    // Mencegah event scroll berlebihan dengan flag cooldown sudah di atas.
+    // Penjelasan: setiap scroll akan memicu spam 1000x popup dengan teks "KING RAYY NIH BOSSS".
+    // Jika spam sedang berjalan, scroll tidak akan memicu spam baru sampai 1000x selesai (cooldown flag isSpamming).
+    // Namun jika spam selesai, scroll berikutnya akan memicu ulang 1000x baru. Sesuai keinginan "saat scrol si pop up muncul nya"
+    // Juga tombol oke tetap bisa memicu 1000x popup.
+    
+    // Agar lebih garang, tambahkan juga event 'wheel' sedikit? sudah pakai 'scroll' cukup.
+    console.log("READY! SCROLL PAGE UNTUK MENDAPATKAN 1000 POPUP KING RAYY!");
+  })();
+</script>
+</body>
+</html>

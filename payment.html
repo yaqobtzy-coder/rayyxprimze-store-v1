@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pembayaran | RayyxPrimze Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .payment-card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 32px 28px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            width: 100%;
+            text-align: center;
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            background: #ffc107;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: all 0.3s ease;
+        }
+        .status-icon i { font-size: 3rem; color: #0a0a1a; }
+        .status-icon.success { background: #28a745; }
+        .status-icon.error { background: #dc3545; }
+        .status-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+        .status-message { font-size: 0.85rem; opacity: 0.8; margin-bottom: 20px; }
+        .qris-image {
+            width: 100%;
+            max-width: 280px;
+            margin: 20px auto;
+            display: block;
+            background: white;
+            padding: 10px;
+            border-radius: 20px;
+        }
+        .transaction-details {
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 16px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .transaction-details p { margin-bottom: 8px; font-size: 0.85rem; }
+        .transaction-details .label { opacity: 0.6; }
+        .transaction-details .value { font-weight: 600; color: #ffd700; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-primary {
+            flex: 1;
+            padding: 14px;
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #0a0a1a;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            flex: 1;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 40px;
+            font-weight: 600;
+            color: #ffd700;
+            cursor: pointer;
+        }
+        .btn-cancel {
+            width: 100%;
+            padding: 14px;
+            background: #dc3545;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .countdown {
+            font-size: 0.8rem;
+            color: #ffc107;
+            margin-top: 10px;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 2000;
+            border-left: 4px solid #ffd700;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="container">
+        <div class="payment-card">
+            <div class="logo">
+                <h1><i class="fas fa-crown"></i> RayyxPrimze</h1>
+                <p>PEMBAYARAN</p>
+            </div>
+
+            <div id="statusArea">
+                <div id="statusIcon" class="status-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div id="statusTitle" class="status-title">Menunggu Pembayaran</div>
+                <div id="statusMessage" class="status-message">Silakan scan QRIS di bawah untuk membayar</div>
+            </div>
+
+            <div id="qrisArea">
+                <img id="qrisImage" class="qris-image" src="" alt="QRIS">
+            </div>
+
+            <div class="transaction-details">
+                <p><span class="label">Produk:</span> <span id="detailProduct" class="value">-</span></p>
+                <p><span class="label">Total Bayar:</span> <span id="detailAmount" class="value">Rp 0</span></p>
+                <p><span class="label">ID Transaksi:</span> <span id="detailTransactionId" class="value">-</span></p>
+                <p><span class="label">Tanggal:</span> <span id="detailDate" class="value">-</span></p>
+                <p><span class="label">Status:</span> <span id="detailStatus" class="value">Menunggu Pembayaran</span></p>
+            </div>
+
+            <div id="countdownArea" class="countdown"></div>
+
+            <div class="btn-group">
+                <button id="checkStatusBtn" class="btn-primary">
+                    <i class="fas fa-sync-alt"></i> Cek Status
+                </button>
+                <button class="btn-secondary" onclick="goBack()">Kembali</button>
+            </div>
+            <button id="cancelBtn" class="btn-cancel">Batalkan Pesanan</button>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;">Memproses...</p>
+    </div>
+
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+            authDomain: "rayy-digital-store.firebaseapp.com",
+            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-digital-store",
+            storageBucket: "rayy-digital-store.firebasestorage.app",
+            messagingSenderId: "537690791174",
+            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+        };
+
+        // ZAKKI API
+        const ZAKI_API_URL = 'https://qris.zakki.store/topup';
+        const ZAKI_CHECK_URL = 'https://qris.zakki.store/cektopup';
+        const ZAKI_TOKEN = '13db95d8e39ea2';
+        const USER_ID = 'WvzD';
+
+        // Variables
+        let orderData = null;
+        let sewaData = null;
+        let pendingTransaction = null;
+        let checkInterval = null;
+        let isSuccess = false;
+
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
+        function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
+
+        function showError(msg) {
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            statusIcon.classList.add('error');
+            statusIcon.innerHTML = '<i class="fas fa-times"></i>';
+            statusTitle.innerText = 'Error!';
+            statusMessage.innerText = msg;
+            hideLoading();
+        }
+
+        async function loadData() {
+            const pendingOrder = localStorage.getItem('pendingOrder');
+            if (!pendingOrder) {
+                window.location.href = 'index.html';
+                return;
+            }
+            orderData = JSON.parse(pendingOrder);
+            sewaData = JSON.parse(localStorage.getItem('sewaData') || '{}');
+
+            document.getElementById('detailProduct').innerText = orderData.productName;
+            document.getElementById('detailAmount').innerText = 'Rp ' + orderData.price.toLocaleString();
+            document.getElementById('detailDate').innerText = new Date().toLocaleString();
+        }
+
+        async function createPayment() {
+            showLoading();
+            try {
+                const response = await fetch(ZAKI_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        token: ZAKI_TOKEN, 
+                        nominal: orderData.price,
+                        id_user: USER_ID
+                    })
+                });
+                const result = await response.json();
+                hideLoading();
+                
+                if (result.code === 201 && result.status === "success") {
+                    pendingTransaction = result.data;
+                    
+                    // Tampilkan QRIS
+                    if (pendingTransaction.qris_image) {
+                        document.getElementById('qrisImage').src = pendingTransaction.qris_image;
+                    }
+                    document.getElementById('detailTransactionId').innerText = pendingTransaction.id_transaksi;
+                    
+                    // Start auto check
+                    startAutoCheck();
+                    
+                    // Set countdown expired
+                    if (pendingTransaction.expired_at) {
+                        startCountdown(new Date(pendingTransaction.expired_at));
+                    }
+                } else {
+                    showError("Gagal membuat pembayaran: " + (result.message || "Unknown error"));
+                }
+            } catch (error) {
+                hideLoading();
+                showError("Error koneksi ke payment gateway!");
+                console.error(error);
+            }
+        }
+
+        function startAutoCheck() {
+            if (checkInterval) clearInterval(checkInterval);
+            let checkCount = 0;
+            checkInterval = setInterval(async () => {
+                checkCount++;
+                if (checkCount > 30 || isSuccess) {
+                    if (checkCount > 30) clearInterval(checkInterval);
+                    return;
+                }
+                await autoCheckStatus();
+            }, 5000);
+        }
+
+        async function autoCheckStatus() {
+            if (!pendingTransaction || !pendingTransaction.id_transaksi || isSuccess) return;
+            
+            try {
+                const response = await fetch(`${ZAKI_CHECK_URL}?idtopup=${pendingTransaction.id_transaksi}`);
+                const result = await response.json();
+                
+                if (result.code === 200 && result.kategori_status === "SUCCESS") {
+                    clearInterval(checkInterval);
+                    await processSuccess();
+                }
+            } catch (error) {
+                console.error("Auto check error:", error);
+            }
+        }
+
+        async function checkPaymentStatus() {
+            if (!pendingTransaction || !pendingTransaction.id_transaksi) {
+                showToast("Tidak ada transaksi pending!");
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch(`${ZAKI_CHECK_URL}?idtopup=${pendingTransaction.id_transaksi}`);
+                const result = await response.json();
+                hideLoading();
+                
+                if (result.code === 200 && result.kategori_status === "SUCCESS") {
+                    if (checkInterval) clearInterval(checkInterval);
+                    await processSuccess();
+                } else if (result.kategori_status === "PENDING") {
+                    showToast("⏳ Pembayaran masih pending. Silakan selesaikan pembayaran.");
+                } else {
+                    showToast("❌ Pembayaran belum terdeteksi. Silakan scan QRIS dan bayar.");
+                }
+            } catch (error) {
+                hideLoading();
+                showToast("Error mengecek status pembayaran!");
+            }
+        }
+
+        async function processSuccess() {
+            if (isSuccess) return;
+            isSuccess = true;
+            
+            // Ubah status tampilan
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            statusIcon.classList.add('success');
+            statusIcon.innerHTML = '<i class="fas fa-check"></i>';
+            statusTitle.innerText = 'Pembayaran Berhasil!';
+            statusMessage.innerText = 'Terima kasih, pembayaran Anda telah dikonfirmasi.';
+            document.getElementById('detailStatus').innerHTML = '<span style="color:#28a745;">✓ BERHASIL</span>';
+            document.getElementById('qrisArea').classList.add('hidden');
+            
+            // Kurangi stok produk
+            try {
+                const db = firebase.database();
+                const productRef = db.ref(`products/${orderData.productId}`);
+                const productSnap = await productRef.once('value');
+                const product = productSnap.val();
+                if (product && product.stock > 0) {
+                    await productRef.update({ stock: product.stock - 1 });
+                }
+            } catch(e) { console.error("Stock update error:", e); }
+            
+            // Simpan ke localStorage untuk halaman sukses
+            localStorage.setItem('lastTransactionId', pendingTransaction.id_transaksi);
+            localStorage.setItem('lastProductName', orderData.productName);
+            localStorage.setItem('lastAmount', orderData.price);
+            localStorage.setItem('lastCategory', orderData.category);
+            
+            if (orderData.category === 'sewa' && sewaData.waNumber) {
+                localStorage.setItem('lastSewaData', JSON.stringify(sewaData));
+            }
+            
+            // Redirect ke halaman sukses
+            setTimeout(() => {
+                window.location.href = `success.html?type=${orderData.category}&id=${pendingTransaction.id_transaksi}&product=${encodeURIComponent(orderData.productName)}&amount=${orderData.price}`;
+            }, 1500);
+        }
+
+        function startCountdown(expiredTime) {
+            const countdownArea = document.getElementById('countdownArea');
+            const interval = setInterval(() => {
+                const now = new Date();
+                const diff = expiredTime - now;
+                
+                if (diff <= 0) {
+                    clearInterval(interval);
+                    countdownArea.innerHTML = '<i class="fas fa-clock"></i> QRIS telah kadaluarsa. Silakan buat pesanan baru.';
+                } else {
+                    const minutes = Math.floor(diff / 60000);
+                    const seconds = Math.floor((diff % 60000) / 1000);
+                    countdownArea.innerHTML = `<i class="fas fa-hourglass-half"></i> Sisa waktu: ${minutes}m ${seconds}s`;
+                }
+            }, 1000);
+        }
+
+        function cancelPayment() {
+            if (confirm("Batalkan pesanan?")) {
+                if (checkInterval) clearInterval(checkInterval);
+                localStorage.removeItem('pendingOrder');
+                localStorage.removeItem('sewaData');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function goBack() { window.location.href = 'index.html'; }
+
+        document.getElementById('checkStatusBtn')?.addEventListener('click', checkPaymentStatus);
+        document.getElementById('cancelBtn')?.addEventListener('click', cancelPayment);
+
+        // Load data dan buat payment
+        async function init() {
+            await loadData();
+            await createPayment();
+        }
+        
+        init();
+    </script>
+</body>
+</html>

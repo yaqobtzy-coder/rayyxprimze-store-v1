@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Gacha | RayyxPrimze</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 30px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+        .header h1 { font-size: 1.3rem; background: linear-gradient(135deg, #FFD966, #FF8C00); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .back-btn, .logout-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .koin-card {
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,100,0,0.05));
+            border-radius: 30px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+        .koin-amount { font-size: 2.5rem; font-weight: 800; color: #ffd700; }
+        .daily-card {
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .daily-btn {
+            background: linear-gradient(95deg, #28a745, #20c997);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+        }
+        .daily-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .gacha-box {
+            background: rgba(0,0,0,0.5);
+            border-radius: 32px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255,215,0,0.3);
+        }
+        .gacha-button {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: none;
+            padding: 20px 40px;
+            border-radius: 60px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            cursor: pointer;
+            width: 100%;
+        }
+        .gacha-button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .result-overlay.show { display: flex; }
+        .result-card {
+            background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
+            border-radius: 48px;
+            padding: 40px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            animation: bounce 0.5s ease;
+        }
+        @keyframes bounce {
+            0% { transform: scale(0.3); opacity: 0; }
+            80% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .result-icon { font-size: 4rem; margin-bottom: 20px; }
+        .result-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+        .result-close {
+            background: #ffd700;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: #1a1a2e;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .prize-list {
+            background: rgba(0,0,0,0.3);
+            border-radius: 24px;
+            padding: 16px;
+        }
+        .prize-list h3 { text-align: center; margin-bottom: 12px; color: #ffd700; font-size: 0.9rem; }
+        .prize-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 0.7rem;
+        }
+        .prize-item {
+            background: rgba(255,255,255,0.05);
+            padding: 6px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 2000;
+            border-left: 4px solid #ffd700;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .auth-card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 32px 28px;
+            text-align: center;
+        }
+        .auth-card input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 40px;
+            color: white;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="authSection" class="container" style="display: flex; align-items: center; justify-content: center;">
+        <div class="auth-card">
+            <h2><i class="fas fa-gamepad"></i> GACHA SYSTEM</h2>
+            <p style="margin: 16px 0;">Login untuk mulai bermain</p>
+            <input type="text" id="loginUsername" placeholder="Username">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button id="gachaLoginBtn" style="width:100%; padding:16px; background:#ffd700; border:none; border-radius:40px; font-weight:bold;">MASUK</button>
+            <p style="margin-top:12px;"><a href="index.html" style="color:#ffd700;">Kembali ke Store</a></p>
+        </div>
+    </div>
+
+    <div id="mainApp" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i></button>
+                <h1><i class="fas fa-dice-d6"></i> GACHA</h1>
+                <button class="logout-btn" id="gachaLogoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+
+            <div class="koin-card">
+                <div class="koin-label">Total Koin</div>
+                <div class="koin-amount" id="koinAmount">0</div>
+            </div>
+
+            <div class="daily-card">
+                <h3><i class="fas fa-calendar-day"></i> Klaim Harian</h3>
+                <button class="daily-btn" id="dailyClaimBtn">KLAIM BONUS HARIAN</button>
+                <div class="daily-info" id="dailyInfo">Bonus 20 Koin setiap hari!</div>
+            </div>
+
+            <div class="gacha-box">
+                <h2><i class="fas fa-dice-d6"></i> GACHA</h2>
+                <p style="margin-bottom: 16px;">Biaya 10 Koin per tarik</p>
+                <button class="gacha-button" id="gachaBtn">TARIK GACHA!</button>
+                <div id="gachaLimitInfo" style="margin-top:8px; font-size:0.7rem;">🎲 Bisa tarik 1x per hari</div>
+            </div>
+
+            <div class="prize-list">
+                <h3>DAFTAR HADIAH</h3>
+                <div class="prize-items">
+                    <div class="prize-item">🎲 10 Koin</div><div class="prize-item">🎲 20 Koin</div>
+                    <div class="prize-item">🎲 40 Koin</div><div class="prize-item">🎲 80 Koin</div>
+                    <div class="prize-item">🎲 100 Koin</div><div class="prize-item">🎲 200 Koin</div>
+                    <div class="prize-item">🤖 Sewa Bot 1 Hari</div><div class="prize-item">🤖 Sewa Bot 3 Hari</div>
+                    <div class="prize-item">🤖 Sewa Bot 7 Hari</div><div class="prize-item">💀 ZONK</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultOverlay" class="result-overlay">
+        <div class="result-card">
+            <div class="result-icon" id="resultIcon">🎲</div>
+            <div class="result-title" id="resultTitle">Selamat!</div>
+            <div class="result-desc" id="resultDesc"></div>
+            <button class="result-close" onclick="closeResult()">Tutup</button>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;">Memproses...</p>
+    </div>
+
+    <script src="config.js"></script>
+    <script type="module" src="firebase-init.js"></script>
+    <script src="auth.js"></script>
+
+    <script>
+        let currentUserData = null;
+        let currentUserId = null;
+
+        const prizes = [
+            { name: "10 Koin", type: "coin", value: 10, weight: 40 },
+            { name: "20 Koin", type: "coin", value: 20, weight: 15 },
+            { name: "40 Koin", type: "coin", value: 40, weight: 10 },
+            { name: "80 Koin", type: "coin", value: 80, weight: 5 },
+            { name: "100 Koin", type: "coin", value: 100, weight: 5 },
+            { name: "200 Koin", type: "coin", value: 200, weight: 5 },
+            { name: "Sewa Bot 1 Hari", type: "sewa", value: "1d", weight: 5 },
+            { name: "Sewa Bot 3 Hari", type: "sewa", value: "3d", weight: 3 },
+            { name: "Sewa Bot 7 Hari", type: "sewa", value: "7d", weight: 2 },
+            { name: "ZONK", type: "zonk", value: 0, weight: 10 }
+        ];
+        let totalWeight = prizes.reduce((a,b) => a + b.weight, 0);
+
+        function getRandomPrize() {
+            let random = Math.random() * totalWeight;
+            let accumulated = 0;
+            for (let prize of prizes) {
+                accumulated += prize.weight;
+                if (random <= accumulated) return { ...prize };
+            }
+            return prizes[0];
+        }
+
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
+        function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
+
+        function showResult(title, message, icon = '🎲') {
+            document.getElementById('resultIcon').innerHTML = icon;
+            document.getElementById('resultTitle').innerHTML = title;
+            document.getElementById('resultDesc').innerHTML = message;
+            document.getElementById('resultOverlay').classList.add('show');
+        }
+        window.closeResult = function() { document.getElementById('resultOverlay').classList.remove('show'); };
+
+        async function updateUI() {
+            if (!currentUserData) return;
+            document.getElementById('koinAmount').innerText = (currentUserData.koin || 0).toLocaleString();
+        }
+
+        async function checkDailyClaim() {
+            const lastClaim = currentUserData.lastDailyClaim;
+            const today = new Date().toDateString();
+            const btn = document.getElementById('dailyClaimBtn');
+            if (lastClaim === today) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                document.getElementById('dailyInfo').innerHTML = '✅ Sudah diklaim hari ini';
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                document.getElementById('dailyInfo').innerHTML = '🎁 Klaim 20 Koin gratis!';
+            }
+        }
+
+        async function checkGachaLimit() {
+            const lastGacha = currentUserData.lastGachaDate;
+            const today = new Date().toDateString();
+            const btn = document.getElementById('gachaBtn');
+            if (lastGacha === today) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                document.getElementById('gachaLimitInfo').innerHTML = '⚠️ Sudah gacha hari ini! Kembali besok.';
+                return false;
+            }
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            document.getElementById('gachaLimitInfo').innerHTML = '🎲 Bisa tarik 1x per hari (10 koin)';
+            return true;
+        }
+
+        document.getElementById("dailyClaimBtn")?.addEventListener("click", async () => {
+            const lastClaim = currentUserData.lastDailyClaim;
+            const today = new Date().toDateString();
+            if (lastClaim === today) { showToast("Sudah klaim hari ini!"); return; }
+            showLoading();
+            const newKoin = (currentUserData.koin || 0) + 20;
+            await window.dbUpdate(window.dbRef(window.db, `users/${currentUserId}`), { koin: newKoin, lastDailyClaim: today });
+            currentUserData.koin = newKoin;
+            currentUserData.lastDailyClaim = today;
+            await updateUI();
+            await checkDailyClaim();
+            hideLoading();
+            showResult("KLAIM HARIAN", "Anda mendapatkan 20 Koin!", "🎁");
+        });
+
+        document.getElementById("gachaBtn")?.addEventListener("click", async () => {
+            const canGacha = await checkGachaLimit();
+            if (!canGacha) { showToast("Sudah gacha hari ini!"); return; }
+            if ((currentUserData.koin || 0) < 10) { showToast("Koin tidak cukup! Minimal 10 koin."); return; }
+
+            showLoading();
+            const newKoin = (currentUserData.koin || 0) - 10;
+            const today = new Date().toDateString();
+            await window.dbUpdate(window.dbRef(window.db, `users/${currentUserId}`), { koin: newKoin, lastGachaDate: today });
+            currentUserData.koin = newKoin;
+            currentUserData.lastGachaDate = today;
+            await updateUI();
+
+            const prize = getRandomPrize();
+            let resultTitle = "", resultMessage = "", resultIcon = "🎲";
+            let needRedirect = false;
+
+            if (prize.type === 'coin') {
+                const finalKoin = newKoin + prize.value;
+                await window.dbUpdate(window.dbRef(window.db, `users/${currentUserId}`), { koin: finalKoin });
+                currentUserData.koin = finalKoin;
+                await updateUI();
+                resultTitle = "SELAMAT!";
+                resultMessage = `Anda mendapatkan ${prize.name}!`;
+                resultIcon = "💰";
+            } else if (prize.type === 'sewa') {
+                resultTitle = "SELAMAT!";
+                resultMessage = `Anda mendapatkan ${prize.name}!\nSilakan isi form untuk klaim.`;
+                resultIcon = "🤖";
+                const gachaReward = { type: 'sewa', productName: prize.name, duration: prize.value, userId: currentUserId, username: currentUserData.username, timestamp: Date.now() };
+                localStorage.setItem('gachaReward', JSON.stringify(gachaReward));
+                needRedirect = true;
+            } else {
+                resultTitle = "ZONK!";
+                resultMessage = "Sayang sekali, tidak mendapatkan apa-apa.\nCoba lagi besok!";
+                resultIcon = "💀";
+            }
+
+            hideLoading();
+            showResult(resultTitle, resultMessage, resultIcon);
+            await checkGachaLimit();
+
+            if (needRedirect) {
+                setTimeout(() => { window.location.href = 'sewa-form-gratis.html'; }, 2000);
+            }
+        });
+
+        document.getElementById("gachaLoginBtn")?.addEventListener("click", async () => {
+            const username = document.getElementById("loginUsername").value.trim();
+            const password = document.getElementById("loginPassword").value;
+            showLoading();
+            const result = await window.login(username, password);
+            if (result.success && !result.userData.isBanned) {
+                currentUserData = result.userData;
+                currentUserId = result.userId;
+                document.getElementById("authSection").style.display = "none";
+                document.getElementById("mainApp").style.display = "block";
+                await updateUI();
+                await checkDailyClaim();
+                await checkGachaLimit();
+                hideLoading();
+            } else {
+                hideLoading();
+                showToast(result.message || "Login gagal!");
+            }
+        });
+
+        document.getElementById("gachaLogoutBtn")?.addEventListener("click", async () => {
+            showLoading();
+            await window.logout();
+            hideLoading();
+            location.reload();
+        });
+
+        async function checkSession() {
+            const session = await window.checkSession();
+            if (session.success && !session.user.isBanned) {
+                currentUserData = session.user;
+                currentUserId = session.userId;
+                document.getElementById("authSection").style.display = "none";
+                document.getElementById("mainApp").style.display = "block";
+                await updateUI();
+                await checkDailyClaim();
+                await checkGachaLimit();
+            }
+        }
+        checkSession();
+    </script>
+</body>
+</html>

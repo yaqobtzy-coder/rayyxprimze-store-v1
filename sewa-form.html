@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Form Sewa | RayyxPrimze Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .form-card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 32px 28px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            width: 100%;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .product-info {
+            background: rgba(255,215,0,0.1);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .product-info h3 { color: #ffd700; margin-bottom: 8px; }
+        .product-price { font-size: 1.5rem; font-weight: 800; color: #ffd700; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 40px;
+            color: white;
+            font-size: 1rem;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #0a0a1a;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-back {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 40px;
+            font-weight: 600;
+            color: #ffd700;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        .error-msg {
+            background: rgba(255,68,68,0.2);
+            border-left: 3px solid #ff4444;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 2000;
+            border-left: 4px solid #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="container">
+        <div class="form-card">
+            <div class="logo">
+                <h1><i class="fas fa-crown"></i> RayyxPrimze</h1>
+                <p>FORM SEWA BOT</p>
+            </div>
+
+            <div id="productInfo" class="product-info">
+                <h3 id="productName">-</h3>
+                <div class="product-price" id="productPrice">Rp 0</div>
+            </div>
+
+            <div id="errorMsg" class="error-msg"></div>
+
+            <div class="form-group">
+                <label><i class="fab fa-whatsapp"></i> Nomor WhatsApp Aktif</label>
+                <input type="tel" id="waNumber" placeholder="Contoh: 628123456789">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-link"></i> Link Group WhatsApp</label>
+                <input type="url" id="waLink" placeholder="https://chat.whatsapp.com/...">
+            </div>
+
+            <button class="btn-submit" id="submitBtn">
+                <i class="fas fa-arrow-right"></i> LANJUTKAN KE PEMBAYARAN
+            </button>
+
+            <button class="btn-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> KEMBALI
+            </button>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;">Memproses...</p>
+    </div>
+
+    <script src="config.js"></script>
+    <script type="module" src="firebase-init.js"></script>
+    <script src="auth.js"></script>
+
+    <script>
+        let orderData = null;
+
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
+        function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
+        function showError(msg) {
+            const errorDiv = document.getElementById("errorMsg");
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + msg;
+            errorDiv.classList.add("show");
+            setTimeout(() => errorDiv.classList.remove("show"), 3000);
+        }
+
+        async function loadOrderData() {
+            const pendingOrder = localStorage.getItem('pendingOrder');
+            if (!pendingOrder) {
+                window.location.href = 'index.html';
+                return;
+            }
+            orderData = JSON.parse(pendingOrder);
+            document.getElementById('productName').innerText = orderData.productName;
+            document.getElementById('productPrice').innerText = 'Rp ' + orderData.price.toLocaleString();
+        }
+
+        document.getElementById("submitBtn")?.addEventListener("click", async () => {
+            const waNumber = document.getElementById('waNumber').value.trim();
+            const waLink = document.getElementById('waLink').value.trim();
+
+            if (!waNumber) { showError("Nomor WhatsApp wajib diisi!"); return; }
+            if (!waLink) { showError("Link Group WhatsApp wajib diisi!"); return; }
+
+            localStorage.setItem('sewaData', JSON.stringify({ waNumber, waLink }));
+            window.location.href = 'payment.html?type=sewa';
+        });
+
+        function goBack() { window.location.href = 'index.html'; }
+
+        // Cek session sebelum akses
+        async function checkAccess() {
+            const session = await window.checkSession();
+            if (!session.success) {
+                window.location.href = 'index.html';
+                return;
+            }
+            await loadOrderData();
+        }
+
+        checkAccess();
+    </script>
+</body>
+</html>
