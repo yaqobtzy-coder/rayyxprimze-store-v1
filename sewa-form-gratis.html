@@ -200,11 +200,24 @@
         <p style="margin-top:20px;">Memproses...</p>
     </div>
 
-    <script src="config.js"></script>
-    <script type="module" src="firebase-init.js"></script>
-    <script src="auth.js"></script>
+    <script type="module">
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+            authDomain: "rayy-digital-store.firebaseapp.com",
+            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-digital-store",
+            storageBucket: "rayy-digital-store.firebasestorage.app",
+            messagingSenderId: "537690791174",
+            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+        };
 
-    <script>
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+        import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
         let gachaReward = null;
 
         function showToast(msg) {
@@ -217,6 +230,7 @@
 
         function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
         function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
+        
         function showError(msg) {
             const errorDiv = document.getElementById("errorMsg");
             errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + msg;
@@ -224,9 +238,10 @@
             setTimeout(() => errorDiv.classList.remove("show"), 3000);
         }
 
-        async function loadReward() {
+        function loadReward() {
             const reward = localStorage.getItem('gachaReward');
             if (!reward) {
+                // Tidak ada hadiah, arahkan ke gacha
                 window.location.href = 'gacha.html';
                 return;
             }
@@ -258,7 +273,21 @@
                 createdAt: new Date().toISOString()
             };
 
-            await window.dbSet(window.dbRef(window.db, `sewa_orders/${orderId}`), orderData);
+            await set(ref(db, `sewa_orders/${orderId}`), orderData);
+            
+            // Kirim notifikasi ke Telegram (opsional)
+            try {
+                await fetch('https://api.telegram.org/bot8352764997:AAEP5JE2llOvuoNFoJvDlATOl2Mrzo4VZ-M/sendMessage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: '7966336512',
+                        text: `🎁 *PESANAN SEWA GRATIS DARI GACHA!*\n\n👤 Username: ${gachaReward.username}\n🎁 Produk: ${gachaReward.productName}\n📱 No WA: ${waNumber}\n🔗 Link Group: ${waLink}\n🆔 ID: ${orderId}`,
+                        parse_mode: 'Markdown'
+                    })
+                });
+            } catch(e) { console.log("Telegram error:", e); }
+            
             localStorage.removeItem('gachaReward');
 
             hideLoading();
@@ -269,18 +298,12 @@
             }, 2000);
         });
 
-        function goBack() { window.location.href = 'gacha.html'; }
-
-        async function checkAccess() {
-            const session = await window.checkSession();
-            if (!session.success) {
-                window.location.href = 'index.html';
-                return;
-            }
-            await loadReward();
+        function goBack() { 
+            window.location.href = 'gacha.html'; 
         }
 
-        checkAccess();
+        // Load hadiah dari localStorage
+        loadReward();
     </script>
 </body>
 </html>

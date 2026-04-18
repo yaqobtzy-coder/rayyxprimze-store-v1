@@ -14,6 +14,26 @@
             color: #ffffff;
             min-height: 100vh;
         }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
         .container {
             max-width: 500px;
             margin: 0 auto;
@@ -31,7 +51,13 @@
             align-items: center;
             border: 1px solid rgba(255,215,0,0.2);
         }
-        .header h1 { font-size: 1.3rem; background: linear-gradient(135deg, #FFD966, #FF8C00); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .header h1 {
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
         .back-btn, .logout-btn {
             background: rgba(255,255,255,0.1);
             border: none;
@@ -39,6 +65,21 @@
             padding: 8px 12px;
             border-radius: 30px;
             cursor: pointer;
+        }
+        .user-info {
+            font-size: 0.7rem;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .owner-badge {
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            color: #1a1a2e;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: bold;
+            margin-left: 5px;
         }
         .koin-card {
             background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,100,0,0.05));
@@ -87,6 +128,15 @@
             width: 100%;
         }
         .gacha-button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .owner-mode-badge {
+            background: #ffd700;
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
         .result-overlay {
             position: fixed;
             top: 0;
@@ -145,6 +195,10 @@
             border-radius: 12px;
             text-align: center;
         }
+        .owner-prize {
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #ffd700;
+        }
         .toast {
             position: fixed;
             bottom: 20px;
@@ -195,20 +249,36 @@
             color: white;
             margin-bottom: 12px;
         }
+        .error-msg {
+            background: rgba(255,68,68,0.2);
+            border-left: 3px solid #ff4444;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            display: none;
+        }
     </style>
 </head>
 <body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <!-- LOGIN SECTION (HANYA USERNAME) -->
     <div id="authSection" class="container" style="display: flex; align-items: center; justify-content: center;">
         <div class="auth-card">
             <h2><i class="fas fa-gamepad"></i> GACHA SYSTEM</h2>
-            <p style="margin: 16px 0;">Login untuk mulai bermain</p>
+            <p style="margin: 16px 0;">Masukkan username Anda untuk bermain</p>
+            <div id="loginError" class="error-msg"></div>
             <input type="text" id="loginUsername" placeholder="Username">
-            <input type="password" id="loginPassword" placeholder="Password">
             <button id="gachaLoginBtn" style="width:100%; padding:16px; background:#ffd700; border:none; border-radius:40px; font-weight:bold;">MASUK</button>
             <p style="margin-top:12px;"><a href="index.html" style="color:#ffd700;">Kembali ke Store</a></p>
         </div>
     </div>
 
+    <!-- MAIN APP -->
     <div id="mainApp" style="display: none;">
         <div class="container">
             <div class="header">
@@ -229,8 +299,11 @@
             </div>
 
             <div class="gacha-box">
+                <div id="ownerModeBadge" style="display: none;" class="owner-mode-badge">
+                    <i class="fas fa-crown"></i> OWNER MODE - Hadiah Sewabot!
+                </div>
                 <h2><i class="fas fa-dice-d6"></i> GACHA</h2>
-                <p style="margin-bottom: 16px;">Biaya 10 Koin per tarik</p>
+                <p style="margin-bottom: 16px;" id="gachaCostText">Biaya 10 Koin per tarik</p>
                 <button class="gacha-button" id="gachaBtn">TARIK GACHA!</button>
                 <div id="gachaLimitInfo" style="margin-top:8px; font-size:0.7rem;">🎲 Bisa tarik 1x per hari</div>
             </div>
@@ -238,11 +311,17 @@
             <div class="prize-list">
                 <h3>DAFTAR HADIAH</h3>
                 <div class="prize-items">
-                    <div class="prize-item">🎲 10 Koin</div><div class="prize-item">🎲 20 Koin</div>
-                    <div class="prize-item">🎲 40 Koin</div><div class="prize-item">🎲 80 Koin</div>
-                    <div class="prize-item">🎲 100 Koin</div><div class="prize-item">🎲 200 Koin</div>
-                    <div class="prize-item">🤖 Sewa Bot 1 Hari</div><div class="prize-item">🤖 Sewa Bot 3 Hari</div>
-                    <div class="prize-item">🤖 Sewa Bot 7 Hari</div><div class="prize-item">💀 ZONK</div>
+                    <div class="prize-item">🎲 10 Koin</div>
+                    <div class="prize-item">🎲 20 Koin</div>
+                    <div class="prize-item">🎲 40 Koin</div>
+                    <div class="prize-item">🎲 80 Koin</div>
+                    <div class="prize-item">🎲 100 Koin</div>
+                    <div class="prize-item">🎲 200 Koin</div>
+                    <div class="prize-item">🤖 Sewa Bot 1 Hari</div>
+                    <div class="prize-item">🤖 Sewa Bot 3 Hari</div>
+                    <div class="prize-item">🤖 Sewa Bot 7 Hari</div>
+                    <div class="prize-item owner-prize">👑 SEWABOT (Owner Only)</div>
+                    <div class="prize-item">💀 ZONK</div>
                 </div>
             </div>
         </div>
@@ -262,36 +341,75 @@
         <p style="margin-top:20px;">Memproses...</p>
     </div>
 
-    <script src="config.js"></script>
-    <script type="module" src="firebase-init.js"></script>
-    <script src="auth.js"></script>
+    <script type="module">
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+            authDomain: "rayy-digital-store.firebaseapp.com",
+            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-digital-store",
+            storageBucket: "rayy-digital-store.firebasestorage.app",
+            messagingSenderId: "537690791174",
+            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+        };
 
-    <script>
-        let currentUserData = null;
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // DEVICE ID untuk 1 akun 1 device
+        const DEVICE_ID = localStorage.getItem('gacha_device_id') || 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 16);
+        localStorage.setItem('gacha_device_id', DEVICE_ID);
+
+        let currentUser = null;
         let currentUserId = null;
 
-        const prizes = [
-            { name: "10 Koin", type: "coin", value: 10, weight: 40 },
+        // Hadiah untuk semua user
+        const commonPrizes = [
+            { name: "10 Koin", type: "coin", value: 10, weight: 35 },
             { name: "20 Koin", type: "coin", value: 20, weight: 15 },
             { name: "40 Koin", type: "coin", value: 40, weight: 10 },
             { name: "80 Koin", type: "coin", value: 80, weight: 5 },
             { name: "100 Koin", type: "coin", value: 100, weight: 5 },
-            { name: "200 Koin", type: "coin", value: 200, weight: 5 },
+            { name: "200 Koin", type: "coin", value: 200, weight: 3 },
             { name: "Sewa Bot 1 Hari", type: "sewa", value: "1d", weight: 5 },
             { name: "Sewa Bot 3 Hari", type: "sewa", value: "3d", weight: 3 },
             { name: "Sewa Bot 7 Hari", type: "sewa", value: "7d", weight: 2 },
-            { name: "ZONK", type: "zonk", value: 0, weight: 10 }
+            { name: "ZONK", type: "zonk", value: 0, weight: 12 }
         ];
-        let totalWeight = prizes.reduce((a,b) => a + b.weight, 0);
 
-        function getRandomPrize() {
-            let random = Math.random() * totalWeight;
-            let accumulated = 0;
-            for (let prize of prizes) {
-                accumulated += prize.weight;
-                if (random <= accumulated) return { ...prize };
+        // Hadiah khusus OWNER (SEWABOT saja + unlimited spin)
+        const ownerPrizes = [
+            { name: "Sewa Bot 1 Hari", type: "sewa", value: "1d", weight: 30 },
+            { name: "Sewa Bot 3 Hari", type: "sewa", value: "3d", weight: 25 },
+            { name: "Sewa Bot 7 Hari", type: "sewa", value: "7d", weight: 20 },
+            { name: "Sewa Bot 30 Hari", type: "sewa", value: "30d", weight: 15 },
+            { name: "Sewa Bot Lifetime", type: "sewa", value: "lifetime", weight: 10 }
+        ];
+
+        let totalWeight = commonPrizes.reduce((a,b) => a + b.weight, 0);
+        let ownerTotalWeight = ownerPrizes.reduce((a,b) => a + b.weight, 0);
+
+        function getRandomPrize(isOwner) {
+            if (isOwner) {
+                let random = Math.random() * ownerTotalWeight;
+                let accumulated = 0;
+                for (let prize of ownerPrizes) {
+                    accumulated += prize.weight;
+                    if (random <= accumulated) return { ...prize };
+                }
+                return { ...ownerPrizes[0] };
+            } else {
+                let random = Math.random() * totalWeight;
+                let accumulated = 0;
+                for (let prize of commonPrizes) {
+                    accumulated += prize.weight;
+                    if (random <= accumulated) return { ...prize };
+                }
+                return commonPrizes[0];
             }
-            return prizes[0];
         }
 
         function showToast(msg) {
@@ -314,12 +432,22 @@
         window.closeResult = function() { document.getElementById('resultOverlay').classList.remove('show'); };
 
         async function updateUI() {
-            if (!currentUserData) return;
-            document.getElementById('koinAmount').innerText = (currentUserData.koin || 0).toLocaleString();
+            if (!currentUser) return;
+            document.getElementById('koinAmount').innerText = (currentUser.koin || 0).toLocaleString();
+            
+            // Cek apakah owner
+            const isOwner = currentUser.role === 'owner';
+            if (isOwner) {
+                document.getElementById('ownerModeBadge').style.display = 'block';
+                document.getElementById('gachaCostText').innerHTML = '<i class="fas fa-crown"></i> OWNER MODE - GRATIS! Hadiah Sewabot';
+            } else {
+                document.getElementById('ownerModeBadge').style.display = 'none';
+                document.getElementById('gachaCostText').innerHTML = 'Biaya 10 Koin per tarik';
+            }
         }
 
         async function checkDailyClaim() {
-            const lastClaim = currentUserData.lastDailyClaim;
+            const lastClaim = currentUser.lastDailyClaim;
             const today = new Date().toDateString();
             const btn = document.getElementById('dailyClaimBtn');
             if (lastClaim === today) {
@@ -334,7 +462,18 @@
         }
 
         async function checkGachaLimit() {
-            const lastGacha = currentUserData.lastGachaDate;
+            const isOwner = currentUser.role === 'owner';
+            
+            // Owner tidak ada limit
+            if (isOwner) {
+                const btn = document.getElementById('gachaBtn');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                document.getElementById('gachaLimitInfo').innerHTML = '👑 Owner Mode: Unlimited Spin!';
+                return true;
+            }
+            
+            const lastGacha = currentUser.lastGachaDate;
             const today = new Date().toDateString();
             const btn = document.getElementById('gachaBtn');
             if (lastGacha === today) {
@@ -349,42 +488,158 @@
             return true;
         }
 
+        // ==================== LOGIN (HANYA USERNAME) ====================
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const errorDiv = document.getElementById('loginError');
+
+            if (!username) {
+                errorDiv.innerHTML = "Masukkan username!";
+                errorDiv.classList.add('show');
+                setTimeout(() => errorDiv.classList.remove('show'), 3000);
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const usersRef = ref(db, 'users');
+                const snapshot = await get(usersRef);
+                
+                if (!snapshot.exists()) {
+                    errorDiv.innerHTML = "Username tidak ditemukan!";
+                    errorDiv.classList.add('show');
+                    hideLoading();
+                    return;
+                }
+
+                let userId = null;
+                let userData = null;
+                for (let key in snapshot.val()) {
+                    if (snapshot.val()[key].username === username) {
+                        userId = key;
+                        userData = snapshot.val()[key];
+                        break;
+                    }
+                }
+
+                if (!userId) {
+                    errorDiv.innerHTML = "Username tidak ditemukan!";
+                    errorDiv.classList.add('show');
+                    hideLoading();
+                    return;
+                }
+
+                if (userData.isBanned) {
+                    errorDiv.innerHTML = "Akun Anda telah diblokir!";
+                    errorDiv.classList.add('show');
+                    hideLoading();
+                    return;
+                }
+
+                // CEK 1 AKUN 1 DEVICE
+                if (userData.deviceId && userData.deviceId !== DEVICE_ID) {
+                    errorDiv.innerHTML = "❌ Akun sedang aktif di perangkat lain! Tidak bisa login dari perangkat berbeda.";
+                    errorDiv.classList.add('show');
+                    hideLoading();
+                    return;
+                }
+
+                // Update device ID dan last login
+                await update(ref(db, `users/${userId}`), { 
+                    deviceId: DEVICE_ID, 
+                    lastLogin: new Date().toISOString() 
+                });
+
+                currentUser = userData;
+                currentUserId = userId;
+
+                localStorage.setItem('gacha_userId', userId);
+                localStorage.setItem('gacha_username', username);
+
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+
+                // Update user info di header
+                const isOwner = currentUser.role === 'owner';
+                const roleText = isOwner ? '👑 Owner' : (currentUser.role === 'admin' ? '👨‍💼 Admin' : (currentUser.role === 'premium' ? '💎 Premium' : '⭐ Member'));
+                document.getElementById('userInfo').innerHTML = `<i class="fas fa-user"></i> ${username} | ${roleText}`;
+
+                await updateUI();
+                await checkDailyClaim();
+                await checkGachaLimit();
+
+                hideLoading();
+            } catch (error) {
+                errorDiv.innerHTML = "Terjadi kesalahan!";
+                errorDiv.classList.add('show');
+                hideLoading();
+            }
+        }
+
+        // ==================== LOGOUT ====================
+        async function handleLogout() {
+            showLoading();
+            if (currentUserId) {
+                await update(ref(db, `users/${currentUserId}`), { deviceId: null });
+            }
+            localStorage.removeItem('gacha_userId');
+            localStorage.removeItem('gacha_username');
+            hideLoading();
+            location.reload();
+        }
+
+        // ==================== DAILY CLAIM ====================
         document.getElementById("dailyClaimBtn")?.addEventListener("click", async () => {
-            const lastClaim = currentUserData.lastDailyClaim;
+            const lastClaim = currentUser.lastDailyClaim;
             const today = new Date().toDateString();
             if (lastClaim === today) { showToast("Sudah klaim hari ini!"); return; }
+            
             showLoading();
-            const newKoin = (currentUserData.koin || 0) + 20;
-            await window.dbUpdate(window.dbRef(window.db, `users/${currentUserId}`), { koin: newKoin, lastDailyClaim: today });
-            currentUserData.koin = newKoin;
-            currentUserData.lastDailyClaim = today;
+            const newKoin = (currentUser.koin || 0) + 20;
+            await update(ref(db, `users/${currentUserId}`), { koin: newKoin, lastDailyClaim: today });
+            currentUser.koin = newKoin;
+            currentUser.lastDailyClaim = today;
             await updateUI();
             await checkDailyClaim();
             hideLoading();
             showResult("KLAIM HARIAN", "Anda mendapatkan 20 Koin!", "🎁");
         });
 
+        // ==================== GACHA ====================
         document.getElementById("gachaBtn")?.addEventListener("click", async () => {
+            const isOwner = currentUser.role === 'owner';
             const canGacha = await checkGachaLimit();
-            if (!canGacha) { showToast("Sudah gacha hari ini!"); return; }
-            if ((currentUserData.koin || 0) < 10) { showToast("Koin tidak cukup! Minimal 10 koin."); return; }
+            if (!canGacha && !isOwner) { showToast("Sudah gacha hari ini!"); return; }
+            
+            // Cek koin untuk non-owner
+            if (!isOwner && (currentUser.koin || 0) < 10) { 
+                showToast("Koin tidak cukup! Minimal 10 koin."); 
+                return; 
+            }
 
             showLoading();
-            const newKoin = (currentUserData.koin || 0) - 10;
+            
+            let newKoin = currentUser.koin || 0;
             const today = new Date().toDateString();
-            await window.dbUpdate(window.dbRef(window.db, `users/${currentUserId}`), { koin: newKoin, lastGachaDate: today });
-            currentUserData.koin = newKoin;
-            currentUserData.lastGachaDate = today;
+            
+            if (!isOwner) {
+                newKoin = newKoin - 10;
+                await update(ref(db, `users/${currentUserId}`), { koin: newKoin, lastGachaDate: today });
+                currentUser.koin = newKoin;
+                currentUser.lastGachaDate = today;
+            }
+            
             await updateUI();
 
-            const prize = getRandomPrize();
+            const prize = getRandomPrize(isOwner);
             let resultTitle = "", resultMessage = "", resultIcon = "🎲";
             let needRedirect = false;
 
             if (prize.type === 'coin') {
                 const finalKoin = newKoin + prize.value;
-                await window.dbUpdate(window.dbRef(window.db, `users/${currentUserId}`), { koin: finalKoin });
-                currentUserData.koin = finalKoin;
+                await update(ref(db, `users/${currentUserId}`), { koin: finalKoin });
+                currentUser.koin = finalKoin;
                 await updateUI();
                 resultTitle = "SELAMAT!";
                 resultMessage = `Anda mendapatkan ${prize.name}!`;
@@ -393,7 +648,14 @@
                 resultTitle = "SELAMAT!";
                 resultMessage = `Anda mendapatkan ${prize.name}!\nSilakan isi form untuk klaim.`;
                 resultIcon = "🤖";
-                const gachaReward = { type: 'sewa', productName: prize.name, duration: prize.value, userId: currentUserId, username: currentUserData.username, timestamp: Date.now() };
+                const gachaReward = { 
+                    type: 'sewa', 
+                    productName: prize.name, 
+                    duration: prize.value, 
+                    userId: currentUserId, 
+                    username: currentUser.username, 
+                    timestamp: Date.now() 
+                };
                 localStorage.setItem('gachaReward', JSON.stringify(gachaReward));
                 needRedirect = true;
             } else {
@@ -404,52 +666,95 @@
 
             hideLoading();
             showResult(resultTitle, resultMessage, resultIcon);
-            await checkGachaLimit();
+            
+            if (!isOwner) {
+                await checkGachaLimit();
+            }
 
             if (needRedirect) {
                 setTimeout(() => { window.location.href = 'sewa-form-gratis.html'; }, 2000);
             }
         });
 
-        document.getElementById("gachaLoginBtn")?.addEventListener("click", async () => {
-            const username = document.getElementById("loginUsername").value.trim();
-            const password = document.getElementById("loginPassword").value;
-            showLoading();
-            const result = await window.login(username, password);
-            if (result.success && !result.userData.isBanned) {
-                currentUserData = result.userData;
-                currentUserId = result.userId;
-                document.getElementById("authSection").style.display = "none";
-                document.getElementById("mainApp").style.display = "block";
-                await updateUI();
-                await checkDailyClaim();
-                await checkGachaLimit();
-                hideLoading();
-            } else {
-                hideLoading();
-                showToast(result.message || "Login gagal!");
-            }
-        });
-
-        document.getElementById("gachaLogoutBtn")?.addEventListener("click", async () => {
-            showLoading();
-            await window.logout();
-            hideLoading();
-            location.reload();
-        });
-
-        async function checkSession() {
-            const session = await window.checkSession();
-            if (session.success && !session.user.isBanned) {
-                currentUserData = session.user;
-                currentUserId = session.userId;
-                document.getElementById("authSection").style.display = "none";
-                document.getElementById("mainApp").style.display = "block";
-                await updateUI();
-                await checkDailyClaim();
-                await checkGachaLimit();
+        // ==================== AUTO LOGIN DARI WEB STORE ====================
+        async function checkAutoLoginFromWebStore() {
+            const webStoreUserId = localStorage.getItem('currentUserId');
+            const webStoreUsername = localStorage.getItem('currentUsername');
+            
+            if (webStoreUserId && webStoreUsername && !localStorage.getItem('gacha_userId')) {
+                const userRef = ref(db, `users/${webStoreUserId}`);
+                const snapshot = await get(userRef);
+                if (snapshot.exists() && !snapshot.val().isBanned) {
+                    currentUser = snapshot.val();
+                    currentUserId = webStoreUserId;
+                    
+                    // Cek device
+                    if (currentUser.deviceId && currentUser.deviceId !== DEVICE_ID) {
+                        showToast("❌ Akun sedang aktif di perangkat lain!");
+                        return;
+                    }
+                    
+                    await update(ref(db, `users/${currentUserId}`), { deviceId: DEVICE_ID });
+                    localStorage.setItem('gacha_userId', webStoreUserId);
+                    localStorage.setItem('gacha_username', webStoreUsername);
+                    
+                    document.getElementById('authSection').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                    
+                    const isOwner = currentUser.role === 'owner';
+                    const roleText = isOwner ? '👑 Owner' : (currentUser.role === 'admin' ? '👨‍💼 Admin' : (currentUser.role === 'premium' ? '💎 Premium' : '⭐ Member'));
+                    document.getElementById('userInfo').innerHTML = `<i class="fas fa-user"></i> ${webStoreUsername} | ${roleText}`;
+                    
+                    await updateUI();
+                    await checkDailyClaim();
+                    await checkGachaLimit();
+                }
             }
         }
+
+        // ==================== CHECK SESSION ====================
+        async function checkSession() {
+            const savedUserId = localStorage.getItem('gacha_userId');
+            const savedUsername = localStorage.getItem('gacha_username');
+            
+            if (savedUserId && savedUsername) {
+                const userRef = ref(db, `users/${savedUserId}`);
+                const snapshot = await get(userRef);
+                if (snapshot.exists() && !snapshot.val().isBanned) {
+                    currentUser = snapshot.val();
+                    currentUserId = savedUserId;
+                    
+                    // Validasi device
+                    if (currentUser.deviceId && currentUser.deviceId !== DEVICE_ID) {
+                        localStorage.removeItem('gacha_userId');
+                        localStorage.removeItem('gacha_username');
+                        document.getElementById('authSection').style.display = 'flex';
+                        document.getElementById('mainApp').style.display = 'none';
+                        showToast("❌ Akun sedang aktif di perangkat lain!");
+                        return;
+                    }
+                    
+                    document.getElementById('authSection').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                    
+                    const isOwner = currentUser.role === 'owner';
+                    const roleText = isOwner ? '👑 Owner' : (currentUser.role === 'admin' ? '👨‍💼 Admin' : (currentUser.role === 'premium' ? '💎 Premium' : '⭐ Member'));
+                    document.getElementById('userInfo').innerHTML = `<i class="fas fa-user"></i> ${savedUsername} | ${roleText}`;
+                    
+                    await updateUI();
+                    await checkDailyClaim();
+                    await checkGachaLimit();
+                } else {
+                    localStorage.removeItem('gacha_userId');
+                    localStorage.removeItem('gacha_username');
+                }
+            }
+        }
+
+        document.getElementById("gachaLoginBtn")?.addEventListener("click", handleLogin);
+        document.getElementById("gachaLogoutBtn")?.addEventListener("click", handleLogout);
+
+        checkAutoLoginFromWebStore();
         checkSession();
     </script>
 </body>

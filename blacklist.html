@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Blacklist Hama Grup | RayyxPrimze</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 28px 24px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            margin-bottom: 20px;
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .logo p {
+            text-align: center;
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .header h2 {
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 40px;
+            padding: 5px 15px;
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            padding: 10px;
+            color: white;
+            width: 200px;
+            outline: none;
+        }
+        .search-box button {
+            background: transparent;
+            border: none;
+            color: #ffd700;
+            cursor: pointer;
+        }
+        .stats {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .stats .total {
+            font-size: 0.9rem;
+        }
+        .stats .total span {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .admin-link {
+            background: rgba(255,215,0,0.2);
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            color: #ffd700;
+            text-decoration: none;
+        }
+        .blacklist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .blacklist-card {
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255,215,0,0.2);
+            transition: 0.2s;
+        }
+        .blacklist-card:hover {
+            border-color: #ffd700;
+            transform: translateY(-2px);
+        }
+        .card-thumb {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        .card-body {
+            padding: 16px;
+        }
+        .card-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .card-name i {
+            color: #ff4444;
+        }
+        .card-phone {
+            font-size: 0.8rem;
+            color: #ffd700;
+            margin-bottom: 8px;
+            font-family: monospace;
+        }
+        .card-reason {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .card-dates {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            opacity: 0.6;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .badge-permanent {
+            background: #dc3545;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+        }
+        .badge-temporary {
+            background: #ffc107;
+            color: #1a1a2e;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+        }
+        .no-data {
+            text-align: center;
+            padding: 60px;
+            opacity: 0.6;
+            grid-column: 1 / -1;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,215,0,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .pagination button.active {
+            background: #ffd700;
+            color: #1a1a2e;
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 2000;
+            border-left: 4px solid #ffd700;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.7rem;
+            opacity: 0.5;
+        }
+        .warning-icon {
+            color: #ff4444;
+            margin-right: 5px;
+        }
+        @media (max-width: 700px) {
+            .blacklist-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <h1><i class="fas fa-ban"></i> Blacklist Hama Grup</h1>
+                <p>Daftar orang yang diblacklist karena merusak/mengganggu grup</p>
+            </div>
+            
+            <div class="stats">
+                <div class="total">
+                    <i class="fas fa-users-slash"></i> Total Terblacklist: <span id="totalCount">0</span>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Cari nama atau nomor...">
+                    <button onclick="searchBlacklist()"><i class="fas fa-search"></i></button>
+                </div>
+
+            
+            <div class="blacklist-grid" id="blacklistGrid">
+                <div class="no-data">
+                    <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+                    <p>Memuat data...</p>
+                </div>
+            </div>
+            
+            <div class="pagination" id="pagination"></div>
+        </div>
+        
+        <div class="footer">
+            <i class="fas fa-shield-alt"></i> Data diperbarui secara realtime | Jika ada kesalahan data, hubungi admin
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Memproses...</p>
+    </div>
+
+    <script type="module">
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+            authDomain: "rayy-digital-store.firebaseapp.com",
+            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-digital-store",
+            storageBucket: "rayy-digital-store.firebasestorage.app",
+            messagingSenderId: "537690791174",
+            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allData = [];
+        let currentPage = 1;
+        const itemsPerPage = 9;
+
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            if (dateString === 'permanen') return 'Permanen';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            } catch(e) {
+                return dateString;
+            }
+        }
+
+        function isExpired(expiryDate) {
+            if (!expiryDate || expiryDate === 'permanen') return false;
+            try {
+                return new Date(expiryDate) < new Date();
+            } catch(e) {
+                return false;
+            }
+        }
+
+        function renderBlacklist() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allData;
+            
+            if (searchTerm) {
+                filtered = allData.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) || 
+                    (item.phone && item.phone.includes(searchTerm))
+                );
+            }
+            
+            document.getElementById('totalCount').innerText = filtered.length;
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = filtered.slice(start, end);
+            
+            const container = document.getElementById('blacklistGrid');
+            
+            if (pageData.length === 0) {
+                container.innerHTML = '<div class="no-data"><i class="fas fa-inbox"></i><p>Tidak ada data blacklist</p></div>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = pageData.map(item => {
+                const expired = isExpired(item.expiryDate);
+                const isPermanent = item.expiryDate === 'permanen';
+                
+                return `
+                    <div class="blacklist-card">
+                        <img class="card-thumb" src="${item.thumbnail || 'https://img2.pixhost.to/images/7264/716081825_alip-1776499744534.jpg'}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/300x160?text=No+Image'">
+                        <div class="card-body">
+                            <div class="card-name">
+                                <i class="fas fa-user-slash"></i> ${escapeHtml(item.name)}
+                                ${expired ? '<span class="badge-temporary" style="background:#28a745;">✓ Sudah Expired</span>' : ''}
+                            </div>
+                            ${item.phone ? `<div class="card-phone"><i class="fab fa-whatsapp"></i> ${escapeHtml(item.phone)}</div>` : ''}
+                            <div class="card-reason">
+                                <i class="fas fa-exclamation-triangle warning-icon"></i> <strong>Alasan:</strong> ${escapeHtml(item.reason)}
+                            </div>
+                            <div class="card-dates">
+                                <span><i class="fas fa-calendar-plus"></i> Masuk: ${formatDate(item.createdAt)}</span>
+                                <span>
+                                    ${isPermanent ? 
+                                        '<span class="badge-permanent"><i class="fas fa-infinity"></i> Permanen</span>' : 
+                                        `<span class="badge-temporary"><i class="fas fa-calendar-times"></i> Sampai: ${formatDate(item.expiryDate)}</span>`
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Pagination
+            const totalPages = Math.ceil(filtered.length / itemsPerPage);
+            const paginationContainer = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
+            let paginationHtml = '';
+            paginationHtml += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    paginationHtml += `<button class="${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    paginationHtml += `<button disabled>...</button>`;
+                }
+            }
+            
+            paginationHtml += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+            paginationContainer.innerHTML = paginationHtml;
+        }
+        
+        window.changePage = function(page) {
+            currentPage = page;
+            renderBlacklist();
+        };
+        
+        window.searchBlacklist = function() {
+            currentPage = 1;
+            renderBlacklist();
+        };
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+        
+        // Load data dari Firebase
+        function loadBlacklist() {
+            const blacklistRef = ref(db, 'blacklist');
+            onValue(blacklistRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    allData = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    // Urutkan berdasarkan tanggal dibuat (terbaru di atas)
+                    allData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                } else {
+                    allData = [];
+                }
+                renderBlacklist();
+            }, (error) => {
+                console.error("Error loading blacklist:", error);
+                document.getElementById('blacklistGrid').innerHTML = '<div class="no-data"><i class="fas fa-database"></i><p>Gagal memuat data. Periksa koneksi internet.</p></div>';
+            });
+        }
+        
+        loadBlacklist();
+        
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBlacklist();
+            }
+        });
+    </script>
+</body>
+</html>
