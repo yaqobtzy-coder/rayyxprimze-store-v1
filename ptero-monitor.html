@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pterodactyl Monitor | RayyxPrimze</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
+            border-radius: 30px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+        .header h1 {
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.2);
+            transition: 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-3px); border-color: #ffd700; }
+        .stat-card i { font-size: 2rem; color: #ffd700; margin-bottom: 10px; }
+        .stat-card .value { font-size: 2rem; font-weight: 800; }
+        .stat-card .label { font-size: 0.8rem; opacity: 0.7; margin-top: 5px; }
+        .section {
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+            padding-bottom: 8px;
+        }
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 15px;
+        }
+        .server-card {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 16px;
+            border-left: 4px solid #ffd700;
+            transition: 0.2s;
+        }
+        .server-card.running { border-left-color: #28a745; }
+        .server-card.offline { border-left-color: #dc3545; }
+        .server-name {
+            font-size: 1rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .server-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .status-running { background: #28a745; color: white; }
+        .status-offline { background: #dc3545; color: white; }
+        .status-installing { background: #ffc107; color: #1a1a2e; }
+        .server-details {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+        .server-details p { margin: 5px 0; }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff8c00);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .btn-refresh {
+            background: linear-gradient(95deg, #ff9800, #ff5722);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .btn-refresh:hover { opacity: 0.9; }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 2000;
+            border-left: 4px solid #ffd700;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .config-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .config-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 10px;
+        }
+        .config-input:focus { outline: none; border-color: #ffd700; }
+        .btn-save {
+            background: #28a745;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .uptime-value {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #ffd700;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.7rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-server"></i> Pterodactyl Monitor</h1>
+            <p>Real-time Server Status & Resource Monitoring</p>
+        </div>
+
+        <!-- Konfigurasi Panel -->
+        <div class="config-panel">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <div style="flex: 2;">
+                    <input type="text" id="pterodactylUrl" class="config-input" placeholder="URL Panel (contoh: https://panel.domain.com)">
+                </div>
+                <div style="flex: 2;">
+                    <input type="password" id="apiToken" class="config-input" placeholder="PTLA / API Token">
+                </div>
+                <div>
+                    <button class="btn-save" onclick="saveConfig()"><i class="fas fa-save"></i> Simpan & Load</button>
+                </div>
+            </div>
+            <div style="font-size: 0.7rem; opacity: 0.6; margin-top: 8px;">
+                <i class="fas fa-info-circle"></i> Masukkan URL Panel Pterodactyl dan Personal Access Token (PTLA)
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-hdd"></i>
+                <div class="value" id="totalServers">0</div>
+                <div class="label">Total Server</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-play-circle"></i>
+                <div class="value" id="runningServers">0</div>
+                <div class="label">Running</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-stop-circle"></i>
+                <div class="value" id="offlineServers">0</div>
+                <div class="label">Offline</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-microchip"></i>
+                <div class="value" id="totalCpu">0%</div>
+                <div class="label">Avg CPU</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-memory"></i>
+                <div class="value" id="totalRam">0 MB</div>
+                <div class="label">Avg RAM</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-database"></i>
+                <div class="value" id="totalDisk">0 MB</div>
+                <div class="label">Avg Disk</div>
+            </div>
+        </div>
+
+        <!-- Server List -->
+        <div class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <h3><i class="fas fa-list"></i> Daftar Server</h3>
+                <button class="btn-refresh" onclick="fetchServers()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+            <div id="serverList" class="server-grid">
+                <div style="text-align: center; padding: 40px; grid-column: span 3;">
+                    <i class="fas fa-plug" style="font-size: 3rem; opacity: 0.3;"></i>
+                    <p>Masukkan konfigurasi panel di atas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Uptime Info -->
+        <div class="section">
+            <h3><i class="fas fa-chart-line"></i> Informasi Sistem</h3>
+            <div id="systemInfo" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                <div><i class="fas fa-globe"></i> Panel: <span id="panelUrl">-</span></div>
+                <div><i class="fas fa-clock"></i> Last Update: <span id="lastUpdate">-</span></div>
+                <div><i class="fas fa-tachometer-alt"></i> Total Resource Usage: <span id="totalResource">-</span></div>
+            </div>
+        </div>
+
+        <footer>
+            <i class="fas fa-shield-alt"></i> Pterodactyl Monitor | Real-time Server Status
+        </footer>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;">Memuat data server...</p>
+    </div>
+
+    <script>
+// Konfigurasi default dari request
+        let config = {
+            panelUrl: 'https://serverrr2.rxpedia.web.id',
+            apiToken: 'ptla_lNHDeCEk1y0hFhj8YChEnwGb5X9mJfSKFvSf9FpEvUh'
+        };
+
+        let serversData = [];
+
+        function showToast(msg) {
+            let toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        function saveConfig() {
+            const url = document.getElementById('pterodactylUrl').value.trim();
+            const token = document.getElementById('apiToken').value.trim();
+            
+            if (!url || !token) {
+                showToast('Masukkan URL Panel dan API Token!');
+                return;
+            }
+            
+            config.panelUrl = url.replace(/\/$/, '');
+            config.apiToken = token;
+            
+            localStorage.setItem('pteroConfig', JSON.stringify(config));
+            showToast('Konfigurasi disimpan!');
+            fetchServers();
+        }
+
+        function loadConfig() {
+            const saved = localStorage.getItem('pteroConfig');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    config = parsed;
+                } catch(e) {}
+            }
+            
+            document.getElementById('pterodactylUrl').value = config.panelUrl;
+            document.getElementById('apiToken').value = config.apiToken;
+            
+            if (config.panelUrl && config.apiToken) {
+                fetchServers();
+            }
+        }
+
+        async function apiRequest(endpoint) {
+            const url = `${config.panelUrl}/api/application${endpoint}`;
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${config.apiToken}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            return await response.json();
+        }
+
+        async function fetchServers() {
+            if (!config.panelUrl || !config.apiToken) {
+                showToast('Konfigurasi panel belum lengkap!');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                // Fetch servers
+                const serversResponse = await apiRequest('/servers?per_page=100');
+                const servers = serversResponse.data || [];
+                
+                // Fetch nodes untuk info tambahan
+                let nodes = [];
+                try {
+                    const nodesResponse = await apiRequest('/nodes?per_page=50');
+                    nodes = nodesResponse.data || [];
+                } catch(e) { console.log('Nodes fetch failed:', e); }
+                
+                serversData = servers;
+                updateStats(servers, nodes);
+                renderServerList(servers);
+                updateSystemInfo();
+                
+                document.getElementById('lastUpdate').innerText = new Date().toLocaleString();
+                
+            } catch (error) {
+                console.error('Error fetching servers:', error);
+                showToast('Error: ' + error.message);
+                document.getElementById('serverList').innerHTML = `
+                    <div style="text-align: center; padding: 40px; grid-column: span 3;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc3545;"></i>
+                        <p>Gagal mengambil data server!</p>
+                        <p style="font-size: 0.7rem;">${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateStats(servers, nodes) {
+            const total = servers.length;
+            let running = 0;
+            let offline = 0;
+            let totalCpu = 0;
+            let totalRam = 0;
+            let totalDisk = 0;
+            let validCount = 0;
+            
+            servers.forEach(server => {
+                const attrs = server.attributes;
+                const status = attrs.status;
+                
+                if (status === 'running') running++;
+                else if (status === 'offline') offline++;
+                else offline++;
+                
+                // Ambil resource usage jika ada
+                if (attrs.cpu && !isNaN(attrs.cpu)) {
+                    totalCpu += parseFloat(attrs.cpu) || 0;
+                    validCount++;
+                }
+                if (attrs.memory && !isNaN(attrs.memory)) {
+                    totalRam += parseInt(attrs.memory) || 0;
+                }
+                if (attrs.disk && !isNaN(attrs.disk)) {
+                    totalDisk += parseInt(attrs.disk) || 0;
+                }
+            });
+            
+            document.getElementById('totalServers').innerText = total;
+            document.getElementById('runningServers').innerText = running;
+            document.getElementById('offlineServers').innerText = offline;
+            document.getElementById('totalCpu').innerText = validCount > 0 ? (totalCpu / validCount).toFixed(1) + '%' : 'N/A';
+            document.getElementById('totalRam').innerText = formatBytes(totalRam);
+            document.getElementById('totalDisk').innerText = formatBytes(totalDisk);
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0 || !bytes) return '0 MB';
+            const mb = bytes / (1024 * 1024);
+            if (mb < 1024) return mb.toFixed(1) + ' MB';
+            return (mb / 1024).toFixed(1) + ' GB';
+        }
+
+        function formatUptime(seconds) {
+            if (!seconds || seconds === 0) return 'N/A';
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            
+            if (days > 0) return `${days}d ${hours}h`;
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            return `${minutes}m`;
+        }
+
+        function renderServerList(servers) {
+            if (!servers.length) {
+                document.getElementById('serverList').innerHTML = `
+                    <div style="text-align: center; padding: 40px; grid-column: span 3;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <p>Tidak ada server ditemukan</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const html = servers.map(server => {
+                const attrs = server.attributes;
+                const status = attrs.status || 'offline';
+                const statusClass = status === 'running' ? 'running' : 'offline';
+                const statusText = status === 'running' ? 'RUNNING' : (status === 'installing' ? 'INSTALLING' : 'OFFLINE');
+                const statusBadgeClass = status === 'running' ? 'status-running' : (status === 'installing' ? 'status-installing' : 'status-offline');
+                
+                const cpuLimit = attrs.limits?.cpu || 'N/A';
+                const ramLimit = attrs.limits?.memory ? formatBytes(attrs.limits.memory) : 'N/A';
+                const diskLimit = attrs.limits?.disk ? formatBytes(attrs.limits.disk) : 'N/A';
+                const cpuPercent = attrs.cpu || 0;
+                const ramUsed = attrs.memory ? formatBytes(attrs.memory) : 'N/A';
+                
+                // Hitung persentase penggunaan
+                const ramPercent = attrs.limits?.memory ? ((attrs.memory || 0) / attrs.limits.memory * 100).toFixed(1) : 0;
+                const diskPercent = attrs.limits?.disk ? ((attrs.disk || 0) / attrs.limits.disk * 100).toFixed(1) : 0;
+                
+                return `
+                    <div class="server-card ${statusClass}">
+                        <div class="server-name">
+                            <span><i class="fas fa-server"></i> ${escapeHtml(attrs.name)}</span>
+                            <span class="server-status ${statusBadgeClass}">${statusText}</span>
+                        </div>
+                        <div class="server-details">
+                            <p><i class="fas fa-tag"></i> ID: ${attrs.identifier || attrs.id}</p>
+                            <p><i class="fas fa-microchip"></i> CPU: ${cpuLimit}% (${cpuPercent}% used)</p>
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${cpuPercent}%"></div></div>
+                            <p><i class="fas fa-memory"></i> RAM: ${ramUsed} / ${ramLimit}</p>
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${ramPercent}%"></div></div>
+                            <p><i class="fas fa-database"></i> Disk: ${diskLimit}</p>
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${diskPercent}%"></div></div>
+                            ${attrs.uptime ? `<p><i class="fas fa-clock"></i> Uptime: ${formatUptime(attrs.uptime)}</p>` : ''}
+                            <p><i class="fas fa-calendar"></i> Created: ${new Date(attrs.created_at).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('serverList').innerHTML = html;
+        }
+
+        function updateSystemInfo() {
+            document.getElementById('panelUrl').innerText = config.panelUrl;
+            
+            const totalServers = serversData.length;
+            const totalResources = serversData.reduce((acc, s) => {
+                acc.cpu += s.attributes.cpu || 0;
+                acc.ram += s.attributes.memory || 0;
+                acc.disk += s.attributes.disk || 0;
+                return acc;
+            }, { cpu: 0, ram: 0, disk: 0 });
+            
+            document.getElementById('totalResource').innerHTML = `${totalResources.cpu.toFixed(1)}% CPU | ${formatBytes(totalResources.ram)} RAM | ${formatBytes(totalResources.disk)} Disk`;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+
+        // Auto refresh setiap 30 detik
+        let refreshInterval;
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(() => {
+                if (config.panelUrl && config.apiToken) {
+                    fetchServers();
+                }
+            }, 30000);
+        }
+
+        // Init
+        loadConfig();
+        startAutoRefresh();
+    </script>
+</body>
+</html>
