@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Admin Blacklist | RayyxPrimze</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 28px 24px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            margin-bottom: 20px;
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .logo p {
+            text-align: center;
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 30px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        .form-group textarea {
+            border-radius: 20px;
+            resize: vertical;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #0a0a1a;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-danger {
+            background: rgba(220,53,69,0.8);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: #ffd700;
+            cursor: pointer;
+        }
+        .blacklist-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .blacklist-table th {
+            text-align: left;
+            padding: 12px;
+            background: rgba(0,0,0,0.4);
+            color: #ffd700;
+        }
+        .blacklist-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .blacklist-table tr:hover {
+            background: rgba(255,215,0,0.05);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.6;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px 18px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 40px;
+            color: white;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 2000;
+            border-left: 4px solid #ffd700;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-decoration: none;
+        }
+        .warning-box {
+            background: rgba(255,68,68,0.2);
+            border-left: 3px solid #ff4444;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+        }
+        @media (max-width: 700px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .blacklist-table th, .blacklist-table td {
+                padding: 8px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="container">
+        <a href="blacklist.html" class="back-link"><i class="fas fa-arrow-left"></i> Kembali ke Blacklist</a>
+        
+        <div class="card">
+            <div class="logo">
+                <h1><i class="fas fa-user-shield"></i> Admin Blacklist</h1>
+                <p>Tambah / Hapus data blacklist hama grup</p>
+            </div>
+            
+            <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i> Hanya untuk admin! Tambahkan data dengan benar.
+            </div>
+            
+            <h3 style="margin-bottom: 20px; color:#ffd700;"><i class="fas fa-plus-circle"></i> Tambah Blacklist Baru</h3>
+            
+            <div class="grid-2">
+                <div>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Nama / Username *</label>
+                        <input type="text" id="name" placeholder="Contoh: Alip, Budi, dll">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fab fa-whatsapp"></i> Nomor Telepon / WhatsApp</label>
+                        <input type="text" id="phone" placeholder="Contoh: 628123456789">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-image"></i> URL Thumbnail / Foto</label>
+                        <input type="text" id="thumbnail" placeholder="https://img2.pixhost.to/images/...">
+                        <small style="font-size:0.6rem; opacity:0.6;">Default: https://img2.pixhost.to/images/7264/716081825_alip-1776499744534.jpg</small>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label><i class="fas fa-exclamation-triangle"></i> Alasan Blacklist *</label>
+                        <textarea id="reason" rows="3" placeholder="Contoh: Spam, Menipu, Mengganggu anggota grup, dll"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Tanggal Berakhir</label>
+                        <select id="expiryType" onchange="toggleExpiryDate()">
+                            <option value="permanen">Permanen (Tidak ada batas waktu)</option>
+                            <option value="temporary">Sementara (Pilih tanggal)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="expiryDateGroup" style="display: none;">
+                        <label>Pilih Tanggal Berakhir</label>
+                        <input type="date" id="expiryDate">
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-primary" id="addBtn"><i class="fas fa-save"></i> Tambah ke Blacklist</button>
+        </div>
+        
+        <div class="card">
+            <h3 style="margin-bottom: 20px; color:#ffd700;"><i class="fas fa-list"></i> Daftar Blacklist</h3>
+            
+            <div class="search-box">
+                <input type="text" id="searchAdmin" placeholder="Cari nama atau nomor...">
+                <button class="btn-secondary" onclick="searchAdminList()"><i class="fas fa-search"></i> Cari</button>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="blacklist-table">
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>No. Telepon</th>
+                            <th>Alasan</th>
+                            <th>Berakhir</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminList">
+                        <tr><td colspan="5" class="no-data">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Memproses...</p>
+    </div>
+
+    <script type="module">
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+            authDomain: "rayy-digital-store.firebaseapp.com",
+            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-digital-store",
+            storageBucket: "rayy-digital-store.firebasestorage.app",
+            messagingSenderId: "537690791174",
+            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+        import { getDatabase, ref, push, remove, onValue } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let allData = [];
+
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
+        function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            if (dateString === 'permanen') return 'Permanen';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' });
+            } catch(e) {
+                return dateString;
+            }
+        }
+
+        window.toggleExpiryDate = function() {
+            const type = document.getElementById('expiryType').value;
+            const group = document.getElementById('expiryDateGroup');
+            if (type === 'temporary') {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+            }
+        };
+
+        // Tambah data
+        document.getElementById('addBtn')?.addEventListener('click', async () => {
+            const name = document.getElementById('name').value.trim();
+            const reason = document.getElementById('reason').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            let thumbnail = document.getElementById('thumbnail').value.trim();
+            const expiryType = document.getElementById('expiryType').value;
+            let expiryDate = null;
+            
+            if (expiryType === 'temporary') {
+                expiryDate = document.getElementById('expiryDate').value;
+                if (!expiryDate) {
+                    showToast("Pilih tanggal berakhir!");
+                    return;
+                }
+            } else {
+                expiryDate = 'permanen';
+            }
+            
+            if (!name) {
+                showToast("Nama harus diisi!");
+                return;
+            }
+            if (!reason) {
+                showToast("Alasan harus diisi!");
+                return;
+            }
+            
+            if (!thumbnail) {
+                thumbnail = 'https://img2.pixhost.to/images/7264/716081825_alip-1776499744534.jpg';
+            }
+            
+            showLoading();
+            
+            const newData = {
+                name: name,
+                reason: reason,
+                phone: phone || null,
+                thumbnail: thumbnail,
+                expiryDate: expiryDate,
+                createdAt: new Date().toISOString()
+            };
+            
+            try {
+                await push(ref(db, 'blacklist'), newData);
+                showToast(`✅ ${name} berhasil ditambahkan ke blacklist!`);
+                document.getElementById('name').value = '';
+                document.getElementById('reason').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('thumbnail').value = '';
+                document.getElementById('expiryType').value = 'permanen';
+                document.getElementById('expiryDateGroup').style.display = 'none';
+                document.getElementById('expiryDate').value = '';
+                loadAdminList();
+            } catch (error) {
+                showToast("Error: " + error.message);
+            }
+            hideLoading();
+        });
+
+        // Load data untuk admin
+        function loadAdminList() {
+            const blacklistRef = ref(db, 'blacklist');
+            onValue(blacklistRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    allData = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                    allData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                } else {
+                    allData = [];
+                }
+                renderAdminList();
+            });
+        }
+        
+        function renderAdminList() {
+            const searchTerm = document.getElementById('searchAdmin')?.value.toLowerCase() || '';
+            let filtered = allData;
+            if (searchTerm) {
+                filtered = allData.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) || 
+                    (item.phone && item.phone.includes(searchTerm))
+                );
+            }
+            
+            const tbody = document.getElementById('adminList');
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">Tidak ada data blacklist</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(item => `
+                <tr>
+                    <td><strong>${escapeHtml(item.name)}</strong></td>
+                    <td>${item.phone ? escapeHtml(item.phone) : '-'}</td>
+                    <td style="max-width:200px;">${escapeHtml(item.reason.substring(0, 50))}${item.reason.length > 50 ? '...' : ''}</td>
+                    <td>${formatDate(item.expiryDate)}</td>
+                    <td class="action-buttons">
+                        <button class="btn-danger" onclick="deleteBlacklist('${item.id}')"><i class="fas fa-trash"></i> Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        window.searchAdminList = function() {
+            renderAdminList();
+        };
+        
+        window.deleteBlacklist = async function(id) {
+            if (confirm("Yakin ingin menghapus data ini dari blacklist?")) {
+                showLoading();
+                try {
+                    const blacklistRef = ref(db, `blacklist/${id}`);
+                    await remove(blacklistRef);
+                    showToast("Data berhasil dihapus!");
+                    loadAdminList();
+                } catch (error) {
+                    showToast("Error: " + error.message);
+                }
+                hideLoading();
+            }
+        };
+        
+        document.getElementById('searchAdmin')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchAdminList();
+            }
+        });
+        
+        loadAdminList();
+    </script>
+</body>
+</html>

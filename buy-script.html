@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Form Sewa Bot | RayyxPrimze Store</title>
+    <title>Beli Script | RayyxPrimze Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -92,7 +92,7 @@
             font-size: 0.85rem;
             opacity: 0.8;
         }
-        .form-group input, .form-group textarea {
+        .form-group input {
             width: 100%;
             padding: 14px 16px;
             background: rgba(255,255,255,0.08);
@@ -101,8 +101,9 @@
             color: white;
             font-size: 1rem;
         }
-        .form-group textarea {
-            resize: none;
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffd700;
         }
         .btn-primary {
             width: 100%;
@@ -194,7 +195,7 @@
         <div class="form-card">
             <div class="logo">
                 <h1><i class="fas fa-crown"></i> RayyxPrimze</h1>
-                <p>FORM SEWA BOT</p>
+                <p>FORM PEMBELIAN SCRIPT</p>
             </div>
 
             <div id="ownerInfo" style="text-align:center;"></div>
@@ -205,17 +206,22 @@
             </div>
 
             <div class="info-box">
-                <i class="fab fa-whatsapp"></i> Masukkan nomor WhatsApp yang akan dihubungi admin untuk konfirmasi sewa bot.
+                <i class="fas fa-info-circle"></i> Data berikut akan digunakan untuk aktivasi script dan support
             </div>
 
             <div class="form-group">
-                <label><i class="fab fa-whatsapp"></i> Nomor WhatsApp</label>
-                <input type="tel" id="waNumber" placeholder="Contoh: 6281234567890">
+                <label><i class="fas fa-user-tie"></i> Nama Owner / Pemilik Bot</label>
+                <input type="text" id="ownerName" placeholder="Contoh: RayyxPrimze">
             </div>
 
             <div class="form-group">
-                <label><i class="fas fa-link"></i> Link Group WhatsApp (opsional)</label>
-                <textarea id="waLink" rows="2" placeholder="https://chat.whatsapp.com/..."></textarea>
+                <label><i class="fab fa-whatsapp"></i> Nomor WhatsApp Owner</label>
+                <input type="tel" id="ownerPhone" placeholder="Contoh: 6281234567890">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fab fa-telegram"></i> Nomor Bot / ID Bot (untuk ACC database)</label>
+                <input type="text" id="botId" placeholder="Contoh: @nama_bot atau 123456789">
             </div>
 
             <button class="btn-primary" id="submitBtn">
@@ -233,6 +239,7 @@
     </div>
 
     <script>
+        // ==================== FIREBASE CONFIG ====================
         const firebaseConfig = {
             apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
             authDomain: "rayy-digital-store.firebaseapp.com",
@@ -292,47 +299,66 @@
         }
 
         document.getElementById('submitBtn').addEventListener('click', async () => {
-            const waNumber = document.getElementById('waNumber').value.trim();
-            const waLink = document.getElementById('waLink').value.trim();
+            const ownerName = document.getElementById('ownerName').value.trim();
+            const ownerPhone = document.getElementById('ownerPhone').value.trim();
+            const botId = document.getElementById('botId').value.trim();
 
-            if (!waNumber) {
-                showToast("Masukkan nomor WhatsApp!");
+            if (!ownerName) {
+                showToast("Masukkan Nama Owner!");
+                return;
+            }
+            if (!ownerPhone) {
+                showToast("Masukkan Nomor WhatsApp Owner!");
+                return;
+            }
+            if (!botId) {
+                showToast("Masukkan Nomor Bot untuk ACC database!");
                 return;
             }
 
             showLoading();
 
-            const sewaData = {
-                waNumber: waNumber,
-                waLink: waLink,
+            const scriptData = {
+                ownerName: ownerName,
+                ownerPhone: ownerPhone,
+                botId: botId,
                 productId: orderData.productId,
                 productName: orderData.productName,
                 productPrice: orderData.productPrice,
+                linkDownload: orderData.linkDownload,
                 userId: currentUserId,
                 username: currentUsername,
                 timestamp: Date.now()
             };
 
-            localStorage.setItem('sewaData', JSON.stringify(sewaData));
+            localStorage.setItem('scriptData', JSON.stringify(scriptData));
 
+            // Jika owner, langsung sukses tanpa bayar
             if (isOwner) {
                 hideLoading();
                 showToast("🎉 OWNER MODE: Transaksi gratis!");
+                
+                // Langsung buka link download dan redirect ke sukses
+                if (orderData.linkDownload) {
+                    window.open(orderData.linkDownload, '_blank');
+                }
                 
                 const transactionId = 'OWNER_' + Date.now();
                 localStorage.setItem('lastTransactionId', transactionId);
                 localStorage.setItem('lastProductName', orderData.productName);
                 localStorage.setItem('lastAmount', orderData.productPrice);
-                localStorage.setItem('lastCategory', 'sewa');
+                localStorage.setItem('lastCategory', 'script');
                 
-                window.location.href = `susces.html?type=sewa&id=${transactionId}&product=${encodeURIComponent(orderData.productName)}&amount=${orderData.productPrice}`;
+                window.location.href = `susces.html?type=script&id=${transactionId}&product=${encodeURIComponent(orderData.productName)}&amount=${orderData.productPrice}`;
                 return;
             }
 
-            window.location.href = 'payment.html?type=sewa';
+            // Redirect ke payment dengan parameter type=script
+            window.location.href = 'payment.html?type=script';
         });
 
         function goBack() {
+            localStorage.removeItem('pendingOrder');
             window.location.href = 'index.html';
         }
 

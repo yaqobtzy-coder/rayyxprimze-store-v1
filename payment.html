@@ -6,14 +6,22 @@
     <title>Pembayaran | RayyxPrimze Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
             color: #ffffff;
             min-height: 100vh;
         }
+        
         #bgVideo {
             position: fixed;
             top: 0;
@@ -25,6 +33,7 @@
             opacity: 0.4;
             pointer-events: none;
         }
+        
         .overlay {
             position: fixed;
             top: 0;
@@ -34,6 +43,7 @@
             background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
             z-index: -1;
         }
+        
         .container {
             max-width: 500px;
             margin: 0 auto;
@@ -43,6 +53,7 @@
             align-items: center;
             justify-content: center;
         }
+        
         .payment-card {
             background: rgba(15, 15, 35, 0.85);
             backdrop-filter: blur(15px);
@@ -52,38 +63,93 @@
             width: 100%;
             text-align: center;
         }
+        
         .logo h1 {
             font-size: 1.8rem;
             background: linear-gradient(135deg, #FFD966, #FF8C00);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            margin-bottom: 8px;
         }
+        
+        .logo p {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+        
+        /* Status Icon */
         .status-icon {
             width: 80px;
             height: 80px;
-            background: #ffc107;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
-            transition: all 0.3s ease;
+            margin: 20px auto;
         }
-        .status-icon i { font-size: 3rem; color: #0a0a1a; }
-        .status-icon.success { background: #28a745; }
-        .status-icon.error { background: #dc3545; }
-        .status-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
-        .status-message { font-size: 0.85rem; opacity: 0.8; margin-bottom: 20px; }
+        
+        .status-icon i {
+            font-size: 3rem;
+        }
+        
+        .status-icon.pending {
+            background: #ffc107;
+        }
+        
+        .status-icon.pending i {
+            color: #0a0a1a;
+        }
+        
+        .status-icon.success {
+            background: #28a745;
+        }
+        
+        .status-icon.success i {
+            color: white;
+        }
+        
+        .status-icon.warning {
+            background: #ffc107;
+        }
+        
+        .status-icon.warning i {
+            color: #0a0a1a;
+        }
+        
+        .status-icon.error {
+            background: #dc3545;
+        }
+        
+        .status-icon.error i {
+            color: white;
+        }
+        
+        .status-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .status-message {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        /* QRIS Image */
         .qris-image {
             width: 100%;
             max-width: 280px;
             margin: 20px auto;
             display: block;
+            border-radius: 20px;
             background: white;
             padding: 10px;
-            border-radius: 20px;
         }
+        
+        /* Transaction Details */
         .transaction-details {
             background: rgba(0,0,0,0.4);
             border-radius: 20px;
@@ -91,10 +157,28 @@
             margin: 20px 0;
             text-align: left;
         }
-        .transaction-details p { margin-bottom: 8px; font-size: 0.85rem; }
-        .transaction-details .label { opacity: 0.6; }
-        .transaction-details .value { font-weight: 600; color: #ffd700; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        
+        .transaction-details p {
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .transaction-details .label {
+            opacity: 0.6;
+        }
+        
+        .transaction-details .value {
+            font-weight: 600;
+            color: #ffd700;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
         .btn-primary {
             flex: 1;
             padding: 14px;
@@ -105,6 +189,7 @@
             color: #0a0a1a;
             cursor: pointer;
         }
+        
         .btn-secondary {
             flex: 1;
             padding: 14px;
@@ -115,6 +200,7 @@
             color: #ffd700;
             cursor: pointer;
         }
+        
         .btn-cancel {
             width: 100%;
             padding: 14px;
@@ -126,11 +212,15 @@
             cursor: pointer;
             margin-top: 10px;
         }
+        
+        /* Countdown */
         .countdown {
             font-size: 0.8rem;
             color: #ffc107;
             margin-top: 10px;
         }
+        
+        /* Loading */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -138,13 +228,18 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.9);
-            z-index: 9999;
-            display: none;
+            display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 9999;
             flex-direction: column;
+            display: none;
         }
-        .loading-overlay.show { display: flex; }
+        
+        .loading-overlay.show {
+            display: flex;
+        }
+        
         .spinner {
             width: 50px;
             height: 50px;
@@ -153,7 +248,16 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
         .toast {
             position: fixed;
             bottom: 20px;
@@ -166,7 +270,34 @@
             z-index: 2000;
             border-left: 4px solid #ffd700;
         }
-        .hidden { display: none; }
+        
+        .history-id {
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #ffd700;
+        }
+        
+        .manual-transfer-info {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+            text-align: left;
+        }
+        
+        .manual-transfer-info p {
+            margin-bottom: 8px;
+        }
+        
+        .copy-btn {
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #ffd700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #ffd700;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -174,124 +305,148 @@
         <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
-
+    
     <div class="container">
         <div class="payment-card">
             <div class="logo">
                 <h1><i class="fas fa-crown"></i> RayyxPrimze</h1>
                 <p>PEMBAYARAN</p>
             </div>
-
+            
+            <!-- Status Area -->
             <div id="statusArea">
-                <div id="statusIcon" class="status-icon">
+                <div id="statusIcon" class="status-icon pending">
                     <i class="fas fa-clock"></i>
                 </div>
                 <div id="statusTitle" class="status-title">Menunggu Pembayaran</div>
                 <div id="statusMessage" class="status-message">Silakan scan QRIS di bawah untuk membayar</div>
             </div>
-
+            
+            <!-- QRIS Area -->
             <div id="qrisArea">
                 <img id="qrisImage" class="qris-image" src="" alt="QRIS">
             </div>
-
-            <div class="transaction-details">
+            
+            <!-- Manual Transfer Area (Fallback) -->
+            <div id="manualArea" class="manual-transfer-info" style="display: none;">
+                <p><strong><i class="fas fa-university"></i> Transfer Manual</strong></p>
+                <p>Bank: <span id="manualBank">BCA</span></p>
+                <p>No Rekening: <span id="manualRekening">1234567890</span></p>
+                <p>Atas Nama: <span id="manualNama">RayyxPrimze Store</span></p>
+                <button class="copy-btn" onclick="copyRekening()"><i class="fas fa-copy"></i> Salin No Rekening</button>
+            </div>
+            
+            <!-- Transaction Details -->
+            <div id="transactionDetails" class="transaction-details">
                 <p><span class="label">Produk:</span> <span id="detailProduct" class="value">-</span></p>
                 <p><span class="label">Total Bayar:</span> <span id="detailAmount" class="value">Rp 0</span></p>
-                <p><span class="label">ID Transaksi:</span> <span id="detailTransactionId" class="value">-</span></p>
+                <p><span class="label">ID Transaksi:</span> <span id="detailTransactionId" class="history-id">-</span></p>
                 <p><span class="label">Tanggal:</span> <span id="detailDate" class="value">-</span></p>
                 <p><span class="label">Status:</span> <span id="detailStatus" class="value">Menunggu Pembayaran</span></p>
             </div>
-
+            
+            <!-- Countdown -->
             <div id="countdownArea" class="countdown"></div>
-
+            
+            <!-- Buttons -->
             <div class="btn-group">
-                <button id="checkStatusBtn" class="btn-primary">
+                <button id="checkStatusBtn" class="btn-primary" onclick="checkPaymentStatus()">
                     <i class="fas fa-sync-alt"></i> Cek Status
                 </button>
-                <button class="btn-secondary" onclick="goBack()">Kembali</button>
+                <button class="btn-secondary" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </button>
             </div>
-            <button id="cancelBtn" class="btn-cancel">Batalkan Pesanan</button>
+            <button id="cancelBtn" class="btn-cancel" onclick="cancelPayment()">
+                <i class="fas fa-times"></i> Batalkan Pesanan
+            </button>
         </div>
     </div>
-
+    
     <div id="loadingOverlay" class="loading-overlay">
         <div class="spinner"></div>
         <p style="margin-top:20px;">Memproses...</p>
     </div>
-
+    
     <script>
         // ==================== FIREBASE CONFIG ====================
         const firebaseConfig = {
-            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
-            authDomain: "rayy-digital-store.firebaseapp.com",
-            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "rayy-digital-store",
-            storageBucket: "rayy-digital-store.firebasestorage.app",
-            messagingSenderId: "537690791174",
-            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+            apiKey: "AIzaSyC1mep1L2wQjbBN1CNaAZ7iGW2kemE-osU",
+            authDomain: "rayy-all-web.firebaseapp.com",
+            databaseURL: "https://rayy-all-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-all-web",
+            storageBucket: "rayy-all-web.firebasestorage.app",
+            messagingSenderId: "491699101144",
+            appId: "1:491699101144:web:339bb960e0f8fc2956a6ad"
         };
-
-        // ZAKKI API
+        
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // ==================== ZAKI STORE API ====================
         const ZAKI_API_URL = 'https://qris.zakki.store/topup';
         const ZAKI_CHECK_URL = 'https://qris.zakki.store/cektopup';
         const ZAKI_TOKEN = '13db95d8e39ea2';
-        const USER_ID = 'WvzD';
-
-        // Variables
+        
+        // ==================== TELEGRAM BOT ====================
+        const TELEGRAM_BOT_TOKEN = '8352764997:AAEP5JE2llOvuoNFoJvDlATOl2Mrzo4VZ-M';
+        const TELEGRAM_CHAT_ID = '7966336512';
+        
+        async function sendToTelegram(message) {
+            try {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'HTML' })
+                });
+            } catch (error) { console.error('Telegram error:', error); }
+        }
+        
+        // ==================== VARIABLES ====================
         let orderData = null;
         let sewaData = null;
+        let paymentType = null;
         let pendingTransaction = null;
         let checkInterval = null;
         let isSuccess = false;
-
-        function showToast(msg) {
-            let toast = document.createElement("div");
-            toast.className = "toast";
-            toast.innerHTML = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        function showLoading() { document.getElementById("loadingOverlay").classList.add("show"); }
-        function hideLoading() { document.getElementById("loadingOverlay").classList.remove("show"); }
-
-        function showError(msg) {
-            const statusIcon = document.getElementById('statusIcon');
-            const statusTitle = document.getElementById('statusTitle');
-            const statusMessage = document.getElementById('statusMessage');
-            statusIcon.classList.add('error');
-            statusIcon.innerHTML = '<i class="fas fa-times"></i>';
-            statusTitle.innerText = 'Error!';
-            statusMessage.innerText = msg;
-            hideLoading();
-        }
-
-        async function loadData() {
+        
+        // ==================== LOAD DATA ====================
+        function loadData() {
             const pendingOrder = localStorage.getItem('pendingOrder');
-            if (!pendingOrder) {
-                window.location.href = 'index.html';
+            const pendingSewa = localStorage.getItem('sewaData');
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (pendingOrder) {
+                orderData = JSON.parse(pendingOrder);
+                paymentType = urlParams.get('type') || orderData.category;
+            }
+            
+            if (pendingSewa) {
+                sewaData = JSON.parse(pendingSewa);
+            }
+            
+            if (!orderData) {
+                showToast("Data pesanan tidak ditemukan!");
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
                 return;
             }
-            orderData = JSON.parse(pendingOrder);
-            sewaData = JSON.parse(localStorage.getItem('sewaData') || '{}');
-
+            
+            // Tampilkan detail produk
             document.getElementById('detailProduct').innerText = orderData.productName;
-            document.getElementById('detailAmount').innerText = 'Rp ' + orderData.price.toLocaleString();
+            document.getElementById('detailAmount').innerText = 'Rp ' + orderData.productPrice.toLocaleString();
             document.getElementById('detailDate').innerText = new Date().toLocaleString();
         }
-
+        
+        // ==================== CREATE PAYMENT ====================
         async function createPayment() {
             showLoading();
             try {
                 const response = await fetch(ZAKI_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        token: ZAKI_TOKEN, 
-                        nominal: orderData.price,
-                        id_user: USER_ID
-                    })
+                    body: JSON.stringify({ token: ZAKI_TOKEN, nominal: orderData.productPrice })
                 });
+                
                 const result = await response.json();
                 hideLoading();
                 
@@ -301,41 +456,119 @@
                     // Tampilkan QRIS
                     if (pendingTransaction.qris_image) {
                         document.getElementById('qrisImage').src = pendingTransaction.qris_image;
+                        document.getElementById('qrisArea').style.display = 'block';
+                        document.getElementById('manualArea').style.display = 'none';
                     }
+                    
                     document.getElementById('detailTransactionId').innerText = pendingTransaction.id_transaksi;
                     
-                    // Start auto check
+                    // Mulai auto cek status
                     startAutoCheck();
                     
                     // Set countdown expired
                     if (pendingTransaction.expired_at) {
-                        startCountdown(new Date(pendingTransaction.expired_at));
+                        const expiredTime = new Date(pendingTransaction.expired_at);
+                        startCountdown(expiredTime);
                     }
                 } else {
-                    showError("Gagal membuat pembayaran: " + (result.message || "Unknown error"));
+                    // Fallback ke manual transfer jika API error
+                    showManualTransfer();
                 }
             } catch (error) {
                 hideLoading();
-                showError("Error koneksi ke payment gateway!");
-                console.error(error);
+                console.error('Error creating payment:', error);
+                showManualTransfer();
             }
         }
-
+        
+        // ==================== MANUAL TRANSFER (FALLBACK) ====================
+        function showManualTransfer() {
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            statusIcon.classList.remove('pending');
+            statusIcon.classList.add('warning');
+            statusIcon.innerHTML = '<i class="fas fa-university"></i>';
+            statusTitle.innerText = 'Transfer Manual';
+            statusMessage.innerText = 'Silakan transfer ke rekening di bawah. Konfirmasi akan dilakukan oleh admin.';
+            
+            document.getElementById('qrisArea').style.display = 'none';
+            document.getElementById('manualArea').style.display = 'block';
+            document.getElementById('detailStatus').innerHTML = '<span style="color:#ffc107;">⏳ MENUNGGU KONFIRMASI</span>';
+            
+            // Buat ID transaksi manual
+            const manualId = 'MANUAL_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            pendingTransaction = {
+                id_transaksi: manualId,
+                manual: true,
+                bank: 'BCA',
+                nomor_rekening: '1234567890',
+                atas_nama: 'RayyxPrimze Store'
+            };
+            document.getElementById('detailTransactionId').innerText = manualId;
+            
+            // Simpan ke database
+            saveManualOrder();
+        }
+        
+        function copyRekening() {
+            const rekening = document.getElementById('manualRekening').innerText;
+            navigator.clipboard.writeText(rekening);
+            showToast("Nomor rekening disalin!");
+        }
+        
+        async function saveManualOrder() {
+            const historyRef = database.ref(`transactions/${orderData.userId}`);
+            await historyRef.push({
+                productName: orderData.productName,
+                amount: orderData.productPrice,
+                transactionId: pendingTransaction.id_transaksi,
+                status: 'pending',
+                timestamp: Date.now(),
+                isManual: true
+            });
+            
+            if (paymentType === 'sewa' && sewaData) {
+                await database.ref('sewa_orders').push({
+                    userId: orderData.userId,
+                    username: orderData.username,
+                    productName: orderData.productName,
+                    productId: orderData.productId,
+                    waNumber: sewaData.waNumber,
+                    waLink: sewaData.waLink,
+                    amount: orderData.productPrice,
+                    transactionId: pendingTransaction.id_transaksi,
+                    status: 'pending',
+                    isManual: true,
+                    createdAt: new Date().toISOString()
+                });
+                
+                const telegramMessage = `🔔 *PESANAN SEWA MANUAL* 🔔\n\n👤 *Username:* ${orderData.username}\n📦 *Produk:* ${orderData.productName}\n💰 *Harga:* Rp ${orderData.productPrice}\n📱 *No WA:* ${sewaData.waNumber}\n🔗 *Link Group:* ${sewaData.waLink}\n🆔 *ID Transaksi:* ${pendingTransaction.id_transaksi}\n⏰ *Waktu:* ${new Date().toLocaleString()}\n\n📌 *INSTRUKSI:* User akan transfer manual.`;
+                await sendToTelegram(telegramMessage);
+            }
+        }
+        
+        // ==================== AUTO CHECK STATUS ====================
         function startAutoCheck() {
             if (checkInterval) clearInterval(checkInterval);
             let checkCount = 0;
             checkInterval = setInterval(async () => {
                 checkCount++;
-                if (checkCount > 30 || isSuccess) {
-                    if (checkCount > 30) clearInterval(checkInterval);
+                if (checkCount > 24 || isSuccess) {
+                    if (checkCount > 24) {
+                        clearInterval(checkInterval);
+                        showToast("⏰ Waktu cek otomatis habis. Silakan cek manual.");
+                    }
                     return;
                 }
                 await autoCheckStatus();
             }, 5000);
         }
-
+        
         async function autoCheckStatus() {
             if (!pendingTransaction || !pendingTransaction.id_transaksi || isSuccess) return;
+            if (pendingTransaction.manual) return;
             
             try {
                 const response = await fetch(`${ZAKI_CHECK_URL}?idtopup=${pendingTransaction.id_transaksi}`);
@@ -349,10 +582,16 @@
                 console.error("Auto check error:", error);
             }
         }
-
+        
+        // ==================== CHECK STATUS MANUAL ====================
         async function checkPaymentStatus() {
             if (!pendingTransaction || !pendingTransaction.id_transaksi) {
                 showToast("Tidak ada transaksi pending!");
+                return;
+            }
+            
+            if (pendingTransaction.manual) {
+                showToast("⏳ Transfer manual akan dikonfirmasi oleh admin. ID transaksi: " + pendingTransaction.id_transaksi);
                 return;
             }
             
@@ -375,50 +614,93 @@
                 showToast("Error mengecek status pembayaran!");
             }
         }
-
+        
+        // ==================== PROCESS SUCCESS ====================
         async function processSuccess() {
             if (isSuccess) return;
             isSuccess = true;
             
-            // Ubah status tampilan
+            // Tampilkan status berhasil
             const statusIcon = document.getElementById('statusIcon');
             const statusTitle = document.getElementById('statusTitle');
             const statusMessage = document.getElementById('statusMessage');
             
+            statusIcon.classList.remove('pending');
             statusIcon.classList.add('success');
             statusIcon.innerHTML = '<i class="fas fa-check"></i>';
             statusTitle.innerText = 'Pembayaran Berhasil!';
             statusMessage.innerText = 'Terima kasih, pembayaran Anda telah dikonfirmasi.';
             document.getElementById('detailStatus').innerHTML = '<span style="color:#28a745;">✓ BERHASIL</span>';
             document.getElementById('qrisArea').classList.add('hidden');
+            document.getElementById('manualArea').style.display = 'none';
             
             // Kurangi stok produk
-            try {
-                const db = firebase.database();
-                const productRef = db.ref(`products/${orderData.productId}`);
-                const productSnap = await productRef.once('value');
-                const product = productSnap.val();
-                if (product && product.stock > 0) {
-                    await productRef.update({ stock: product.stock - 1 });
+            const productRef = database.ref(`products/${orderData.productId}`);
+            const productSnap = await productRef.once('value');
+            const product = productSnap.val();
+            
+            if (product && product.stock > 0) {
+                await productRef.update({ stock: product.stock - 1 });
+                
+                // Simpan ke riwayat transaksi
+                const historyRef = database.ref(`transactions/${orderData.userId}`);
+                await historyRef.push({
+                    productName: orderData.productName,
+                    amount: orderData.productPrice,
+                    transactionId: pendingTransaction.id_transaksi,
+                    status: 'success',
+                    timestamp: Date.now()
+                });
+                
+                if (paymentType === 'sewa' && sewaData) {
+                    // Kirim ke Telegram untuk admin
+                    const telegramMessage = `🔔 *PESANAN SEWA BERHASIL* 🔔\n\n👤 *Username:* ${orderData.username}\n📦 *Produk:* ${orderData.productName}\n💰 *Harga:* Rp ${orderData.productPrice}\n📱 *No WA:* ${sewaData.waNumber}\n🔗 *Link Group:* ${sewaData.waLink}\n🆔 *ID Transaksi:* ${pendingTransaction.id_transaksi}\n⏰ *Waktu:* ${new Date().toLocaleString()}`;
+                    await sendToTelegram(telegramMessage);
+                    
+                    // Simpan ke sewa_orders
+                    await database.ref('sewa_orders').push({
+                        userId: orderData.userId,
+                        username: orderData.username,
+                        productName: orderData.productName,
+                        productId: orderData.productId,
+                        waNumber: sewaData.waNumber,
+                        waLink: sewaData.waLink,
+                        amount: orderData.productPrice,
+                        transactionId: pendingTransaction.id_transaksi,
+                        status: 'pending',
+                        createdAt: new Date().toISOString()
+                    });
+                    
+                    statusMessage.innerText = 'Pembayaran berhasil! Menunggu konfirmasi dari admin. Anda akan mendapat notifikasi jika disetujui.';
+                    
+                    // Ubah tombol
+                    const checkBtn = document.getElementById('checkStatusBtn');
+                    checkBtn.innerHTML = '<i class="fas fa-home"></i> Kembali ke Store';
+                    checkBtn.onclick = () => { window.location.href = 'index.html'; };
+                    document.getElementById('cancelBtn').style.display = 'none';
+                    
+                } else if (paymentType === 'script') {
+                    // Langsung buka link download
+                    if (orderData.linkDownload) {
+                        window.open(orderData.linkDownload, '_blank');
+                    }
+                    statusMessage.innerText = 'Pembayaran berhasil! Anda akan diarahkan ke link download.';
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 3000);
                 }
-            } catch(e) { console.error("Stock update error:", e); }
-            
-            // Simpan ke localStorage untuk halaman sukses
-            localStorage.setItem('lastTransactionId', pendingTransaction.id_transaksi);
-            localStorage.setItem('lastProductName', orderData.productName);
-            localStorage.setItem('lastAmount', orderData.price);
-            localStorage.setItem('lastCategory', orderData.category);
-            
-            if (orderData.category === 'sewa' && sewaData.waNumber) {
-                localStorage.setItem('lastSewaData', JSON.stringify(sewaData));
+                
+                // Tambah koin
+                const koinDidapat = Math.floor(orderData.productPrice / 100);
+                const userRef = database.ref(`users/${orderData.userId}`);
+                const userSnap = await userRef.once('value');
+                const currentKoin = userSnap.val()?.koin || 0;
+                await userRef.update({ koin: currentKoin + koinDidapat });
             }
-            
-            // Redirect ke halaman sukses
-            setTimeout(() => {
-                window.location.href = `success.html?type=${orderData.category}&id=${pendingTransaction.id_transaksi}&product=${encodeURIComponent(orderData.productName)}&amount=${orderData.price}`;
-            }, 1500);
         }
-
+        
+        // ==================== COUNTDOWN ====================
         function startCountdown(expiredTime) {
             const countdownArea = document.getElementById('countdownArea');
             const interval = setInterval(() => {
@@ -435,7 +717,26 @@
                 }
             }, 1000);
         }
-
+        
+        // ==================== UTILITY ====================
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+        
+        function showToast(msg) {
+            let existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            let toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
         function cancelPayment() {
             if (confirm("Batalkan pesanan?")) {
                 if (checkInterval) clearInterval(checkInterval);
@@ -444,19 +745,14 @@
                 window.location.href = 'index.html';
             }
         }
-
-        function goBack() { window.location.href = 'index.html'; }
-
-        document.getElementById('checkStatusBtn')?.addEventListener('click', checkPaymentStatus);
-        document.getElementById('cancelBtn')?.addEventListener('click', cancelPayment);
-
-        // Load data dan buat payment
-        async function init() {
-            await loadData();
-            await createPayment();
+        
+        function goBack() {
+            window.location.href = 'index.html';
         }
         
-        init();
+        // ==================== INIT ====================
+        loadData();
+        createPayment();
     </script>
 </body>
 </html>

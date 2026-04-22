@@ -301,7 +301,28 @@
             width: 100%;
         }
         
-        /* SIDEBAR - HANYA UNTUK MENU TAMBAHAN (WA, TikTok, Tools, Gacha) */
+        .telegram-widget {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: #0088cc;
+            border-radius: 50px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            z-index: 99;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .telegram-widget:hover {
+            transform: scale(1.05);
+            background: #006699;
+        }
+        .telegram-widget i { font-size: 1.3rem; }
+        .telegram-widget span { font-size: 0.7rem; }
+        
         .sidebar {
             position: fixed;
             left: -280px;
@@ -573,7 +594,6 @@
             color: #1a1a2e;
         }
         
-        /* BOTTOM NAVIGATION - Store | Live Chat | Profile | Readme | Privacy */
         .bottom-nav {
             display: flex;
             justify-content: space-around;
@@ -745,7 +765,6 @@
             margin-top: 8px;
         }
         
-        /* Info Modal untuk Readme & Privacy */
         .info-modal {
             position: fixed;
             top: 0;
@@ -828,6 +847,7 @@
     </video>
     <div class="overlay"></div>
     
+    
     <div id="maintenanceMode" style="display: none;">
         <div class="maintenance-container">
             <div class="maintenance-card">
@@ -851,7 +871,7 @@
             </div>
         </div>
         
-        <!-- SIDEBAR (khusus menu tambahan: WA, TikTok, Tools, Gacha) -->
+        <!-- SIDEBAR -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -863,6 +883,7 @@
                 <li><a href="#" onclick="openTikTok()"><i class="fab fa-tiktok"></i> TikTok</a></li>
                 <li><a href="tools.html" target="_blank"><i class="fas fa-gamepad"></i> Tools Zone</a></li>
                 <li><a href="gacha.html" target="_blank"><i class="fas fa-dice-d6"></i> Gacha</a></li>
+                <li><a href="#" onclick="window.open('https://t.me/rayyxprimze_bot', '_blank')"><i class="fab fa-telegram"></i> Telegram Bot</a></li>
             </ul>
         </div>
         
@@ -924,7 +945,6 @@
             </div>
             <div style="line-height: 1.6; font-size: 0.85rem;">
                 <p>Terakhir diperbarui: 19 April 2026</p><br>
-                
                 <h3 style="color:#ffd700; margin-bottom:10px;">1. Informasi yang Kami Kumpulkan</h3>
                 <p>Kami mengumpulkan informasi berikut saat Anda menggunakan layanan kami:</p>
                 <ul style="margin-left: 20px; margin-top: 8px;">
@@ -933,7 +953,6 @@
                     <li>Data perangkat (Device ID untuk keamanan 1 akun 1 device)</li>
                     <li>Data chat yang Anda kirimkan di Live Chat</li>
                 </ul><br>
-                
                 <h3 style="color:#ffd700; margin-bottom:10px;">2. Penggunaan Data</h3>
                 <p>Data yang kami kumpulkan digunakan untuk:</p>
                 <ul style="margin-left: 20px; margin-top: 8px;">
@@ -942,17 +961,14 @@
                     <li>Meningkatkan layanan dan pengalaman pengguna</li>
                     <li>Mengirim notifikasi penting terkait akun</li>
                 </ul><br>
-                
                 <h3 style="color:#ffd700; margin-bottom:10px;">3. Keamanan Data</h3>
                 <p>Kami menggunakan enkripsi SHA-256 untuk password dan sistem token untuk session. Setiap perangkat memiliki Device ID unik untuk mencegah login dari perangkat berbeda.</p><br>
-                
                 <h3 style="color:#ffd700; margin-bottom:10px;">4. Pembagian Data ke Pihak Ketiga</h3>
                 <p>Kami tidak menjual atau membagikan data pribadi Anda kepada pihak ketiga, kecuali:</p>
                 <ul style="margin-left: 20px; margin-top: 8px;">
                     <li>Data transaksi ke payment gateway (QRIS)</li>
                     <li>Data chat ke database Firebase (untuk sinkronisasi)</li>
                 </ul><br>
-                
                 <h3 style="color:#ffd700; margin-bottom:10px;">5. Hak Anda</h3>
                 <p>Anda berhak untuk:</p>
                 <ul style="margin-left: 20px; margin-top: 8px;">
@@ -960,10 +976,8 @@
                     <li>Menghapus akun Anda (hubungi admin)</li>
                     <li>Logout dari perangkat lain</li>
                 </ul><br>
-                
                 <h3 style="color:#ffd700; margin-bottom:10px;">6. Kontak</h3>
-                <p>Jika ada pertanyaan tentang kebijakan privasi ini, hubungi kami di WhatsApp Official.</p><br>
-                
+                <p>Jika ada pertanyaan tentang kebijakan privasi ini, hubungi kami di WhatsApp Official atau Telegram.</p><br>
                 <p style="font-size:0.7rem; opacity:0.6;">Dengan menggunakan layanan kami, Anda menyetujui kebijakan privasi ini.</p>
             </div>
         </div>
@@ -984,7 +998,7 @@
             </div>
             <div style="margin-top: 20px; background: rgba(0,0,0,0.3); border-radius: 16px; padding: 12px;">
                 <p style="font-size:0.7rem; text-align:center;">
-                    <i class="fas fa-code-branch"></i> Ada saran fitur? Hubungi admin via WhatsApp!
+                    <i class="fas fa-code-branch"></i> Ada saran fitur? Hubungi admin via WhatsApp atau Telegram!
                 </p>
             </div>
         </div>
@@ -1009,6 +1023,21 @@
         const database = getDatabase(app);
         
         console.log("🔥 Firebase Connected!");
+
+        // Telegram Bot API
+        const TELEGRAM_BOT_TOKEN = '8352764997:AAEP5JE2llOvuoNFoJvDlATOl2Mrzo4VZ-M';
+        const TELEGRAM_OWNER_ID = '7966336512';
+        
+        async function sendToTelegram(message) {
+            try {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TELEGRAM_OWNER_ID, text: message, parse_mode: 'HTML' })
+                });
+                console.log("✅ Notifikasi Telegram terkirim");
+            } catch(e) { console.error("Telegram error:", e); }
+        }
 
         // ==================== VARIABLES ====================
         let currentUserId = localStorage.getItem("currentUserId");
@@ -1127,38 +1156,17 @@
         async function showReadme() {
             document.getElementById('readmeModal').classList.add('active');
             closeSidebar();
-            
-            // Load updates dari database
             const updatesRef = ref(database, 'settings/updates');
             const snapshot = await get(updatesRef);
             const container = document.getElementById('readmeContent');
-            
             if (!snapshot.exists()) {
-                container.innerHTML = `
-                    <div style="text-align:center; padding:40px;">
-                        <i class="fas fa-inbox" style="font-size:3rem; opacity:0.5;"></i>
-                        <p>Belum ada update</p>
-                    </div>
-                `;
+                container.innerHTML = `<div style="text-align:center; padding:40px;"><i class="fas fa-inbox" style="font-size:3rem; opacity:0.5;"></i><p>Belum ada update</p></div>`;
                 return;
             }
-            
             const updates = Object.values(snapshot.val()).sort((a,b) => new Date(b.date) - new Date(a.date));
-            
             let html = '';
             for (const update of updates) {
-                html += `
-                    <div class="update-item">
-                        <div class="update-version">
-                            <i class="fas fa-tag"></i> Versi ${escapeHtml(update.version)}
-                            ${update.isNew ? '<span class="badge-new">NEW</span>' : ''}
-                        </div>
-                        <div class="update-date">📅 ${escapeHtml(update.date)}</div>
-                        <ul class="update-list">
-                            ${update.changes.map(change => `<li>${escapeHtml(change)}</li>`).join('')}
-                        </ul>
-                    </div>
-                `;
+                html += `<div class="update-item"><div class="update-version"><i class="fas fa-tag"></i> Versi ${escapeHtml(update.version)}${update.isNew ? '<span class="badge-new">NEW</span>' : ''}</div><div class="update-date">📅 ${escapeHtml(update.date)}</div><ul class="update-list">${update.changes.map(change => `<li>${escapeHtml(change)}</li>`).join('')}</ul></div>`;
             }
             container.innerHTML = html;
         }
@@ -1319,6 +1327,8 @@
                 localStorage.setItem("currentUserId", newUserId);
                 localStorage.setItem("currentUsername", username);
                 
+                await sendToTelegram(`🆕 *PENDAFTARAN BARU*\n👤 Username: ${username}\n📅 Tanggal: ${new Date().toLocaleString()}`);
+                
                 hideLoading();
                 showToast("✅ Pendaftaran berhasil! Anda mendapat " + bonusKoin + " koin.");
                 setTimeout(() => location.reload(), 1500);
@@ -1367,6 +1377,8 @@
                 
                 localStorage.setItem("currentUserId", userId);
                 localStorage.setItem("currentUsername", username);
+                
+                await sendToTelegram(`🔐 *LOGIN BERHASIL*\n👤 Username: ${username}\n📅 Waktu: ${new Date().toLocaleString()}`);
                 
                 hideLoading();
                 showToast("✅ Login berhasil!");
@@ -1463,7 +1475,8 @@
             `).join('');
         }
         
-        function handleBuyProduct(productId, productName, productPrice, category, linkDownload) {
+        // UPDATE handleBuyProduct untuk SCRIPT (arah ke buy-script.html)
+        async function handleBuyProduct(productId, productName, productPrice, category, linkDownload) {
             const orderData = {
                 productId: productId,
                 productName: productName,
@@ -1476,10 +1489,12 @@
             };
             localStorage.setItem('pendingOrder', JSON.stringify(orderData));
             
+            await sendToTelegram(`🛒 *PRODUK DIPROSES*\n👤 User: ${currentUsername}\n📦 Produk: ${productName}\n💰 Harga: Rp ${productPrice.toLocaleString()}\n📂 Kategori: ${category.toUpperCase()}`);
+            
             if (category === 'sewa') {
                 window.location.href = 'sewa-form.html';
             } else if (category === 'script') {
-                window.location.href = 'payment.html?type=script';
+                window.location.href = 'buy-script.html';
             }
         }
         
@@ -1530,31 +1545,26 @@
         
         window.sendChatRoomMessage = sendChatRoomMessage;
         
-        // ==================== NAVIGASI BOTTOM (Store, Chat, Profile, Readme, Privacy) ====================
+        // ==================== NAVIGATION ====================
         function initNavigation() {
-            // Store
             document.getElementById('nav-store')?.addEventListener('click', () => {
                 setActiveNav('nav-store');
                 showPage('store');
             });
-            // Live Chat
             document.getElementById('nav-chat')?.addEventListener('click', () => {
                 setActiveNav('nav-chat');
                 showPage('chatroom');
                 loadChatRoom();
             });
-            // Profile
             document.getElementById('nav-profile')?.addEventListener('click', () => {
                 setActiveNav('nav-profile');
                 showPage('profile');
                 loadProfile();
             });
-            // Readme / Update
             document.getElementById('nav-readme')?.addEventListener('click', () => {
                 setActiveNav('nav-readme');
                 showReadme();
             });
-            // Kebijakan Privasi
             document.getElementById('nav-privacy')?.addEventListener('click', () => {
                 setActiveNav('nav-privacy');
                 showPrivacyPolicy();
@@ -1700,23 +1710,12 @@
                     </div>
                 </div>
                 
-                <!-- BOTTOM NAVIGATION -->
                 <div class="bottom-nav">
-                    <div class="nav-item active" id="nav-store">
-                        <i class="fas fa-store"></i><span>STORE</span>
-                    </div>
-                    <div class="nav-item" id="nav-chat">
-                        <i class="fas fa-comments"></i><span>CHAT</span>
-                    </div>
-                    <div class="nav-item" id="nav-profile">
-                        <i class="fas fa-user"></i><span>PROFIL</span>
-                    </div>
-                    <div class="nav-item" id="nav-readme">
-                        <i class="fas fa-info-circle"></i><span>README</span>
-                    </div>
-                    <div class="nav-item" id="nav-privacy">
-                        <i class="fas fa-shield-alt"></i><span>PRIVASI</span>
-                    </div>
+                    <div class="nav-item active" id="nav-store"><i class="fas fa-store"></i><span>STORE</span></div>
+                    <div class="nav-item" id="nav-chat"><i class="fas fa-comments"></i><span>CHAT</span></div>
+                    <div class="nav-item" id="nav-profile"><i class="fas fa-user"></i><span>PROFIL</span></div>
+                    <div class="nav-item" id="nav-readme"><i class="fas fa-info-circle"></i><span>README</span></div>
+                    <div class="nav-item" id="nav-privacy"><i class="fas fa-shield-alt"></i><span>PRIVASI</span></div>
                 </div>
             `;
             
