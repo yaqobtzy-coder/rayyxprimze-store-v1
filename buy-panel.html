@@ -202,6 +202,11 @@
         .spec-3gb { background: #FF9800; }
         .spec-4gb { background: #9C27B0; }
         .spec-5gb { background: #FF5722; }
+        .spec-6gb { background: #795548; }
+        .spec-7gb { background: #607D8B; }
+        .spec-8gb { background: #E91E63; }
+        .spec-9gb { background: #00BCD4; }
+        .spec-10gb { background: #673AB7; }
         .spec-unli { background: linear-gradient(95deg, #FFD700, #FF8C00); color: #1a1a2e; }
         .optional-note {
             font-size: 0.6rem;
@@ -300,7 +305,7 @@
         let currentUsername = localStorage.getItem("currentUsername");
         let isOwner = false;
         
-        // Fungsi untuk mendapatkan spesifikasi dari produk (HARGA DARI DATABASE)
+        // Fungsi untuk mendapatkan spesifikasi dari produk (RAM, CPU, Disk dari database)
         async function getProductSpec(productId) {
             try {
                 const productRef = database.ref(`products/${productId}`);
@@ -308,39 +313,38 @@
                 const product = snapshot.val();
                 
                 if (product) {
-                    // Ambil harga dari database
+                    // Ambil data dari database (sudah termasuk ramSpec, ramMB, cpuPercent, diskMB)
+                    const ramSpec = product.ramSpec || '1gb';
+                    const ramMB = product.ramMB || '1024';
+                    const cpuPercent = product.cpuPercent || '30';
+                    const diskMB = product.diskMB || '2048';
                     const price = product.price || 25000;
-                    const name = product.name || '';
-                    const nameLower = name.toLowerCase();
+                    const productName = product.name || 'Panel Hosting';
                     
-                    // Tentukan spesifikasi berdasarkan nama
-                    let spec = '1gb';
-                    let ram = '1024';
-                    let cpu = '30';
-                    let disk = '2048';
-                    let label = '1 GB RAM';
-                    
-                    if (nameLower.includes('5gb')) { spec = '5gb'; ram = '5120'; cpu = '150'; disk = '10240'; label = '5 GB RAM'; }
-                    else if (nameLower.includes('4gb')) { spec = '4gb'; ram = '4096'; cpu = '120'; disk = '8192'; label = '4 GB RAM'; }
-                    else if (nameLower.includes('3gb')) { spec = '3gb'; ram = '3072'; cpu = '90'; disk = '6144'; label = '3 GB RAM'; }
-                    else if (nameLower.includes('2gb')) { spec = '2gb'; ram = '2048'; cpu = '60'; disk = '4096'; label = '2 GB RAM'; }
-                    else if (nameLower.includes('unlimited') || nameLower.includes('unli')) { spec = 'unli'; ram = '0'; cpu = '0'; disk = '0'; label = 'UNLIMITED'; }
+                    // Label RAM
+                    const ramLabels = {
+                        '1gb': '1 GB RAM', '2gb': '2 GB RAM', '3gb': '3 GB RAM',
+                        '4gb': '4 GB RAM', '5gb': '5 GB RAM', '6gb': '6 GB RAM',
+                        '7gb': '7 GB RAM', '8gb': '8 GB RAM', '9gb': '9 GB RAM',
+                        '10gb': '10 GB RAM', 'unli': 'UNLIMITED'
+                    };
+                    const label = ramLabels[ramSpec] || '1 GB RAM';
                     
                     return {
-                        spec: spec,
-                        ram: ram,
-                        cpu: cpu,
-                        disk: disk,
+                        spec: ramSpec,
+                        ram: ramMB,
+                        cpu: cpuPercent,
+                        disk: diskMB,
                         price: price,
                         label: label,
-                        productName: name
+                        productName: productName
                     };
                 }
             } catch (error) {
                 console.error('Error getting product:', error);
             }
             
-            // Default fallback
+            // Default fallback 1GB
             return { spec: '1gb', ram: '1024', cpu: '30', disk: '2048', price: 25000, label: '1 GB RAM', productName: 'Panel 1GB' };
         }
 
@@ -351,21 +355,21 @@
                 '3gb': '<span class="spec-badge spec-3gb">3 GB RAM</span>',
                 '4gb': '<span class="spec-badge spec-4gb">4 GB RAM</span>',
                 '5gb': '<span class="spec-badge spec-5gb">5 GB RAM</span>',
+                '6gb': '<span class="spec-badge spec-6gb">6 GB RAM</span>',
+                '7gb': '<span class="spec-badge spec-7gb">7 GB RAM</span>',
+                '8gb': '<span class="spec-badge spec-8gb">8 GB RAM</span>',
+                '9gb': '<span class="spec-badge spec-9gb">9 GB RAM</span>',
+                '10gb': '<span class="spec-badge spec-10gb">10 GB RAM</span>',
                 'unli': '<span class="spec-badge spec-unli">UNLIMITED</span>'
             };
             return badges[spec] || badges['1gb'];
         }
 
-        function getSpecDetail(spec) {
-            const details = {
-                '1gb': 'RAM: 1024 MB | CPU: 30% | Disk: 2 GB',
-                '2gb': 'RAM: 2048 MB | CPU: 60% | Disk: 4 GB',
-                '3gb': 'RAM: 3072 MB | CPU: 90% | Disk: 6 GB',
-                '4gb': 'RAM: 4096 MB | CPU: 120% | Disk: 8 GB',
-                '5gb': 'RAM: 5120 MB | CPU: 150% | Disk: 10 GB',
-                'unli': 'RAM: Unlimited | CPU: Unlimited | Disk: Unlimited'
-            };
-            return details[spec] || details['1gb'];
+        function getSpecDetail(spec, ram, cpu, disk) {
+            if (spec === 'unli') {
+                return 'RAM: Unlimited | CPU: Unlimited | Disk: Unlimited';
+            }
+            return `RAM: ${ram} MB | CPU: ${cpu}% | Disk: ${Math.floor(disk / 1024)} GB`;
         }
 
         function showToast(msg) {
@@ -405,20 +409,20 @@
             
             orderData = JSON.parse(pendingOrder);
             
-            // Ambil spesifikasi dari DATABASE (harga sesuai control.html)
+            // Ambil spesifikasi dari DATABASE (RAM, CPU, Disk sesuai setting di control)
             showLoading();
             const specData = await getProductSpec(orderData.productId);
             hideLoading();
             
-            // TAMPILKAN HARGA DARI DATABASE
+            // TAMPILKAN HARGA DAN SPESIFIKASI DARI DATABASE
             document.getElementById('productName').innerHTML = `${specData.productName} ${getSpecBadge(specData.spec)}`;
             document.getElementById('productPrice').innerHTML = 'Rp ' + specData.price.toLocaleString();
-            document.getElementById('productSpec').innerHTML = getSpecDetail(specData.spec);
+            document.getElementById('productSpec').innerHTML = getSpecDetail(specData.spec, specData.ram, specData.cpu, specData.disk);
             document.getElementById('priceDetail').innerHTML = `💰 Harga: Rp ${specData.price.toLocaleString()} (sudah termasuk biaya pembuatan panel)`;
             
             // Simpan spesifikasi ke orderData
             orderData.specData = specData;
-            orderData.productPrice = specData.price; // UPDATE HARGA dari database
+            orderData.productPrice = specData.price;
             localStorage.setItem('pendingOrder', JSON.stringify(orderData));
         }
 
@@ -454,7 +458,14 @@
                 notes: notes || '',
                 duration: 30,
                 spec: specData.spec,
-                specData: specData,
+                specData: {
+                    spec: specData.spec,
+                    ram: specData.ram,
+                    cpu: specData.cpu,
+                    disk: specData.disk,
+                    label: specData.label,
+                    price: specData.price
+                },
                 productId: orderData.productId,
                 productName: orderData.productName,
                 productPrice: totalPrice,

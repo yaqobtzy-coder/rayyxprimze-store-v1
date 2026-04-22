@@ -192,6 +192,24 @@
         .cat-script { background: #9C27B0; }
         .cat-panel { background: #FF5722; }
         .cat-digital { background: #4CAF50; }
+        .spec-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            margin-left: 8px;
+        }
+        .spec-1gb { background: #2196F3; }
+        .spec-2gb { background: #4CAF50; }
+        .spec-3gb { background: #FF9800; }
+        .spec-4gb { background: #9C27B0; }
+        .spec-5gb { background: #FF5722; }
+        .spec-6gb { background: #795548; }
+        .spec-7gb { background: #607D8B; }
+        .spec-8gb { background: #E91E63; }
+        .spec-9gb { background: #00BCD4; }
+        .spec-10gb { background: #673AB7; }
+        .spec-unli { background: linear-gradient(95deg, #FFD700, #FF8C00); color: #1a1a2e; }
     </style>
 </head>
 <body>
@@ -230,6 +248,7 @@
             <div id="transactionDetails" class="transaction-details">
                 <p><span class="label">Produk:</span> <span id="detailProduct" class="value">-</span></p>
                 <p><span class="label">Kategori:</span> <span id="detailCategory" class="value">-</span></p>
+                <p><span class="label">Spesifikasi:</span> <span id="detailSpec" class="value">-</span></p>
                 <p><span class="label">Total Bayar:</span> <span id="detailAmount" class="value">Rp 0</span></p>
                 <p><span class="label">ID Transaksi:</span> <span id="detailTransactionId" class="value">-</span></p>
                 <p><span class="label">Tanggal:</span> <span id="detailDate" class="value">-</span></p>
@@ -303,6 +322,24 @@
         let productLinkDownload = null;
         let panelOrderId = null;
 
+        // Fungsi untuk mendapatkan badge spesifikasi
+        function getSpecBadge(spec) {
+            const badges = {
+                '1gb': '<span class="spec-badge spec-1gb">1 GB RAM</span>',
+                '2gb': '<span class="spec-badge spec-2gb">2 GB RAM</span>',
+                '3gb': '<span class="spec-badge spec-3gb">3 GB RAM</span>',
+                '4gb': '<span class="spec-badge spec-4gb">4 GB RAM</span>',
+                '5gb': '<span class="spec-badge spec-5gb">5 GB RAM</span>',
+                '6gb': '<span class="spec-badge spec-6gb">6 GB RAM</span>',
+                '7gb': '<span class="spec-badge spec-7gb">7 GB RAM</span>',
+                '8gb': '<span class="spec-badge spec-8gb">8 GB RAM</span>',
+                '9gb': '<span class="spec-badge spec-9gb">9 GB RAM</span>',
+                '10gb': '<span class="spec-badge spec-10gb">10 GB RAM</span>',
+                'unli': '<span class="spec-badge spec-unli">UNLIMITED</span>'
+            };
+            return badges[spec] || badges['1gb'];
+        }
+
         async function checkOwner() {
             const userId = localStorage.getItem("currentUserId");
             if (userId) {
@@ -347,7 +384,7 @@
                 });
                 
                 // Kirim notifikasi ke Telegram
-                await sendToTelegram(`🖥️ *PESANAN PANEL (OWNER MODE)* 🖥️\n\n👤 Username: ${orderData.username}\n📦 Produk: ${orderData.productName}\n💰 Harga: Rp ${orderData.productPrice}\n🖥️ Nama Panel: ${panelData.panelName}\n👤 User Panel: ${panelData.panelUsername}\n📱 WA: ${panelData.waNumber}\n🆔 Order ID: ${panelOrderId}`);
+                await sendToTelegram(`🖥️ *PESANAN PANEL (OWNER MODE)* 🖥️\n\n👤 Username: ${orderData.username}\n📦 Produk: ${orderData.productName}\n💾 RAM: ${panelData.specData?.label || panelData.spec || '1 GB'}\n💰 Harga: Rp ${orderData.productPrice}\n👤 User Panel: ${panelData.panelUsername}\n📱 WA: ${panelData.waNumber || '-'}\n🆔 Order ID: ${panelOrderId}`);
             }
             
             localStorage.setItem('lastTransactionId', transactionId);
@@ -382,13 +419,21 @@
             }
             
             let categoryBadge = '';
+            let specHtml = '';
+            
             if (paymentType === 'sewa') categoryBadge = '<span class="category-badge cat-sewa">SEWA BOT</span>';
             else if (paymentType === 'script') categoryBadge = '<span class="category-badge cat-script">SCRIPT</span>';
-            else if (paymentType === 'panel') categoryBadge = '<span class="category-badge cat-panel">PANEL HOSTING</span>';
+            else if (paymentType === 'panel') {
+                categoryBadge = '<span class="category-badge cat-panel">PANEL HOSTING</span>';
+                const spec = panelData?.specData?.spec || panelData?.spec || '1gb';
+                specHtml = `${getSpecBadge(spec)} ${panelData?.specData?.label || '1 GB RAM'}`;
+            }
             else if (paymentType === 'digital') categoryBadge = '<span class="category-badge cat-digital">PRODUK DIGITAL</span>';
             
             document.getElementById('detailProduct').innerHTML = `${escapeHtml(orderData.productName)} ${categoryBadge}`;
             document.getElementById('detailCategory').innerHTML = paymentType.toUpperCase();
+            if (specHtml) document.getElementById('detailSpec').innerHTML = specHtml;
+            else document.getElementById('detailSpec').innerHTML = '-';
             document.getElementById('detailAmount').innerText = 'Rp ' + orderData.productPrice.toLocaleString();
             document.getElementById('detailDate').innerText = new Date().toLocaleString();
         }
@@ -546,7 +591,8 @@
                 transactionId: pendingTransaction.id_transaksi,
                 status: 'success',
                 timestamp: Date.now(),
-                category: paymentType
+                category: paymentType,
+                spec: panelData?.specData?.label || null
             });
             
             // Tambah koin
@@ -601,7 +647,7 @@
                 }, 2000);
             }
             
-            // 3. PANEL HOSTING (KIRIM KE BOT UNTUK AUTO CREATE)
+            // 3. PANEL HOSTING (KIRIM KE BOT DENGAN SPESIFIKASI RAM)
             else if (paymentType === 'panel' && panelData) {
                 const newOrderRef = database.ref('panel_orders').push();
                 panelOrderId = newOrderRef.key;
@@ -614,24 +660,31 @@
                     notifiedToBot: false
                 });
                 
-                // Kirim notifikasi ke Telegram BOT untuk auto create panel
+                // Kirim notifikasi ke Telegram BOT dengan spesifikasi RAM lengkap
+                const ramLabel = panelData.specData?.label || panelData.spec || '1 GB RAM';
+                const ramMB = panelData.specData?.ram || '1024';
+                const cpuPercent = panelData.specData?.cpu || '30';
+                const diskGB = panelData.specData?.disk ? Math.floor(panelData.specData.disk / 1024) : '2';
+                
                 const botMessage = `🖥️ *PESANAN PANEL BARU* 🖥️
 
 👤 *Username:* ${orderData.username}
 📦 *Produk:* ${orderData.productName}
+💾 *RAM:* ${ramLabel} (${ramMB} MB)
+⚙️ *CPU:* ${cpuPercent}%
+💽 *Disk:* ${diskGB} GB
 💰 *Harga:* Rp ${orderData.productPrice}
-🖥️ *Nama Panel:* ${panelData.panelName}
 👤 *User Panel:* ${panelData.panelUsername}
 🔑 *Password:* ${panelData.panelPassword}
-📱 *WA:* ${panelData.waNumber}
+📱 *WA:* ${panelData.waNumber || '-'}
 📝 *Catatan:* ${panelData.notes || '-'}
 🆔 *Order ID:* ${panelOrderId}
 
-Bot akan otomatis membuat panel dalam beberapa menit.`;
+Bot akan otomatis membuat panel dengan spesifikasi di atas.`;
                 
                 await sendToTelegram(botMessage);
                 
-                statusMessage.innerText = '✅ Pembayaran berhasil! Bot sedang membuatkan panel Anda. Data panel akan muncul di menu "Data Panel Saya" setelah selesai.';
+                statusMessage.innerText = `✅ Pembayaran berhasil! Bot sedang membuatkan panel ${ramLabel} Anda. Data panel akan muncul di menu "Data Panel Saya" setelah selesai.`;
                 
                 setTimeout(() => {
                     window.location.href = `susces.html?type=panel&id=${pendingTransaction.id_transaksi}&product=${encodeURIComponent(orderData.productName)}&amount=${orderData.productPrice}`;
