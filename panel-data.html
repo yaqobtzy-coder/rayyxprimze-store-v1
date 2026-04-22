@@ -63,6 +63,13 @@
             padding: 24px;
             margin-bottom: 20px;
             border: 1px solid rgba(255,215,0,0.2);
+            transition: 0.3s;
+        }
+        .panel-card.panel-ready {
+            border-left: 4px solid #28a745;
+        }
+        .panel-card.panel-pending {
+            border-left: 4px solid #ffc107;
         }
         .panel-title {
             font-size: 1.2rem;
@@ -71,6 +78,11 @@
             margin-bottom: 16px;
             border-bottom: 1px solid rgba(255,215,0,0.3);
             padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .panel-info {
             margin: 12px 0;
@@ -89,6 +101,7 @@
             background: rgba(0,0,0,0.3);
             padding: 4px 8px;
             border-radius: 8px;
+            word-break: break-all;
         }
         .status-badge {
             display: inline-block;
@@ -121,6 +134,16 @@
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
+        }
+        .btn-refresh {
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #ffd700;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            color: #ffd700;
+            cursor: pointer;
+            margin-left: 10px;
         }
         .loading-overlay {
             position: fixed;
@@ -170,6 +193,23 @@
             cursor: pointer;
             margin-left: 8px;
         }
+        .auto-refresh-info {
+            text-align: center;
+            font-size: 0.65rem;
+            opacity: 0.5;
+            margin-bottom: 15px;
+        }
+        .loading-spinner-small {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,215,0,0.3);
+            border-top: 2px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -182,6 +222,11 @@
         <div class="header">
             <h1><i class="fas fa-server"></i> Data Panel Saya</h1>
             <p>Informasi panel hosting yang telah Anda beli</p>
+        </div>
+
+        <div class="auto-refresh-info">
+            <i class="fas fa-sync-alt"></i> Data otomatis update setiap 10 detik
+            <button class="btn-refresh" onclick="manualRefresh()"><i class="fas fa-sync-alt"></i> Refresh Sekarang</button>
         </div>
 
         <div id="panelList"></div>
@@ -216,6 +261,7 @@
 
         let currentUserId = localStorage.getItem("currentUserId");
         let currentUsername = localStorage.getItem("currentUsername");
+        let refreshInterval = null;
 
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('show');
@@ -268,8 +314,6 @@
                 return;
             }
 
-            showLoading();
-
             try {
                 const panelOrdersRef = database.ref('panel_orders');
                 const snapshot = await panelOrdersRef.orderByChild('userId').equalTo(currentUserId).once('value');
@@ -284,7 +328,6 @@
                             <button class="btn-primary" onclick="window.location.href='index.html'">Belanja Sekarang</button>
                         </div>
                     `;
-                    hideLoading();
                     return;
                 }
 
@@ -292,12 +335,14 @@
                 for (const [id, panel] of Object.entries(panels)) {
                     const panelCreated = panel.panelCreated || false;
                     const panelInfo = panel.panelInfo || {};
+                    const status = panel.status || panel.paymentStatus || 'pending';
+                    const isDone = status === 'done' || panelCreated;
                     
                     html += `
-                        <div class="panel-card">
+                        <div class="panel-card ${isDone ? 'panel-ready' : 'panel-pending'}">
                             <div class="panel-title">
-                                <i class="fas fa-server"></i> ${escapeHtml(panel.panelName || panel.productName)}
-                                ${getStatusBadge(panel.status || panel.paymentStatus || 'pending')}
+                                <span><i class="fas fa-server"></i> ${escapeHtml(panel.panelName || panel.productName)}</span>
+                                ${getStatusBadge(status)}
                             </div>
                             
                             <div class="panel-info">
@@ -321,15 +366,16 @@
                             </div>
                     `;
                     
-                    if (panelCreated && panelInfo) {
+                    // TAMPILKAN DATA PANEL JIKA SUDAH DIBUAT
+                    if (isDone && panelInfo && panelInfo.panelUrl) {
                         html += `
                             <hr style="margin: 16px 0; border-color: rgba(255,215,0,0.2);">
                             <div class="panel-title" style="font-size: 1rem; margin-top: 8px;">
-                                <i class="fas fa-check-circle" style="color: #28a745;"></i> Data Panel Anda
+                                <i class="fas fa-check-circle" style="color: #28a745;"></i> Data Panel Anda (Akses Sekarang!)
                             </div>
                             <div class="panel-info">
                                 <span class="panel-label">🔗 Link Panel:</span>
-                                <span class="panel-value">${escapeHtml(panelInfo.panelUrl || '-')} <button class="copy-btn" onclick="copyToClipboard('${panelInfo.panelUrl || ''}')">Salin</button></span>
+                                <span class="panel-value">${escapeHtml(panelInfo.panelUrl)} <button class="copy-btn" onclick="copyToClipboard('${panelInfo.panelUrl}')">Salin</button> <a href="${panelInfo.panelUrl}" target="_blank" style="color:#ffd700; margin-left:5px;"><i class="fas fa-external-link-alt"></i></a></span>
                             </div>
                             <div class="panel-info">
                                 <span class="panel-label">👤 Username:</span>
@@ -339,20 +385,36 @@
                                 <span class="panel-label">🔑 Password:</span>
                                 <span class="panel-value">${escapeHtml(panelInfo.password || '●●●●●●●●')} <button class="copy-btn" onclick="copyToClipboard('${panelInfo.password || panel.panelPassword}')">Salin</button></span>
                             </div>
+                            <div class="panel-info">
+                                <span class="panel-label">🆔 Server ID:</span>
+                                <span class="panel-value">${escapeHtml(panelInfo.serverId || '-')}</span>
+                            </div>
                         `;
-                    } else if (panel.status === 'paid' || panel.paymentStatus === 'success') {
+                    } 
+                    // JIKA SUDAH BAYAR TAPI BELUM DIBUAT
+                    else if (status === 'paid' || status === 'success') {
                         html += `
                             <hr style="margin: 16px 0; border-color: rgba(255,215,0,0.2);">
                             <div class="info-box" style="background: rgba(255,215,0,0.1); border-radius: 12px; padding: 12px; text-align: center;">
-                                <i class="fas fa-spinner fa-pulse"></i> Panel sedang diproses oleh admin.
-                                <br>Mohon tunggu konfirmasi via WhatsApp.
+                                <i class="fas fa-spinner fa-pulse"></i> Panel sedang diproses oleh sistem.
+                                <br>Data panel akan otomatis muncul setelah selesai dibuat (biasanya 1-5 menit).
+                                <br><span style="font-size: 0.7rem;">Halaman ini akan otomatis refresh setiap 10 detik.</span>
                             </div>
                         `;
-                    } else if (panel.status === 'pending') {
+                    } 
+                    else if (status === 'pending') {
                         html += `
                             <hr style="margin: 16px 0; border-color: rgba(255,215,0,0.2);">
                             <div class="info-box" style="background: rgba(255,193,7,0.1); border-radius: 12px; padding: 12px; text-align: center;">
                                 <i class="fas fa-clock"></i> Menunggu pembayaran. Silakan selesaikan pembayaran Anda.
+                            </div>
+                        `;
+                    } else if (status === 'rejected') {
+                        html += `
+                            <hr style="margin: 16px 0; border-color: rgba(220,53,69,0.3);">
+                            <div class="info-box" style="background: rgba(220,53,69,0.1); border-radius: 12px; padding: 12px; text-align: center;">
+                                <i class="fas fa-times-circle" style="color: #dc3545;"></i> Pesanan ditolak.
+                                <br>Alasan: ${escapeHtml(panel.rejectReason || 'Silakan hubungi admin')}
                             </div>
                         `;
                     }
@@ -370,8 +432,6 @@
                         <button class="btn-primary" onclick="location.reload()">Coba Lagi</button>
                     </div>
                 `;
-            } finally {
-                hideLoading();
             }
         }
 
@@ -384,8 +444,24 @@
             window.location.href = 'index.html';
         }
 
+        function manualRefresh() {
+            showToast("🔄 Memuat ulang data...");
+            loadUserPanels();
+        }
+
+        // Auto refresh setiap 10 detik (real-time update)
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(() => {
+                if (currentUserId) {
+                    loadUserPanels();
+                }
+            }, 10000);
+        }
+
         window.copyToClipboard = copyToClipboard;
         window.goToStore = goToStore;
+        window.manualRefresh = manualRefresh;
 
         // Cek login dan load data
         if (!currentUserId) {
@@ -398,6 +474,7 @@
             `;
         } else {
             loadUserPanels();
+            startAutoRefresh();
         }
     </script>
 </body>

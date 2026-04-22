@@ -80,7 +80,14 @@
             color: #ffd700;
         }
         .product-info .product-price {
-            font-size: 1rem;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #ffd700;
+            margin-top: 8px;
+        }
+        .product-info .product-spec {
+            font-size: 0.8rem;
+            opacity: 0.7;
             margin-top: 8px;
         }
         .form-group {
@@ -182,6 +189,32 @@
             font-size: 0.7rem;
             text-align: center;
         }
+        .spec-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        .spec-1gb { background: #2196F3; }
+        .spec-2gb { background: #4CAF50; }
+        .spec-3gb { background: #FF9800; }
+        .spec-4gb { background: #9C27B0; }
+        .spec-5gb { background: #FF5722; }
+        .spec-unli { background: linear-gradient(95deg, #FFD700, #FF8C00); color: #1a1a2e; }
+        .optional-note {
+            font-size: 0.6rem;
+            opacity: 0.5;
+            margin-top: 5px;
+        }
+        .price-detail {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 0.7rem;
+        }
     </style>
 </head>
 <body>
@@ -202,30 +235,31 @@
             <div class="product-info" id="productInfo">
                 <div class="product-name" id="productName">-</div>
                 <div class="product-price" id="productPrice">Rp 0</div>
+                <div class="product-spec" id="productSpec">-</div>
+                <div class="price-detail" id="priceDetail"></div>
             </div>
 
             <div class="info-box">
-                <i class="fas fa-info-circle"></i> Isi data berikut untuk pembuatan panel hosting. Data akan dikirim ke admin untuk diproses.
+                <i class="fas fa-info-circle"></i> Panel akan otomatis dibuat setelah pembayaran berhasil.<br>
+                Data panel bisa dilihat di menu <strong>"Data Panel Saya"</strong> setelah admin memproses.
             </div>
 
             <div class="form-group">
-                <label><i class="fas fa-server"></i> Nama Panel / Domain yang Diinginkan</label>
-                <input type="text" id="panelName" placeholder="Contoh: panel-saya.rxpedia.web.id">
+                <label><i class="fas fa-user"></i> Username Panel <span style="color:#ff4444;">*</span></label>
+                <input type="text" id="panelUsername" placeholder="Username untuk login panel (min 3 karakter)">
+                <small style="font-size:0.6rem; opacity:0.6;">Username akan digunakan untuk login ke panel Pterodactyl</small>
             </div>
 
             <div class="form-group">
-                <label><i class="fas fa-user"></i> Username Panel</label>
-                <input type="text" id="panelUsername" placeholder="Username untuk login panel">
-            </div>
-
-            <div class="form-group">
-                <label><i class="fas fa-lock"></i> Password Panel</label>
+                <label><i class="fas fa-lock"></i> Password Panel <span style="color:#ff4444;">*</span></label>
                 <input type="password" id="panelPassword" placeholder="Password untuk login panel">
+                <small style="font-size:0.6rem; opacity:0.6;">Simpan password ini dengan aman</small>
             </div>
 
             <div class="form-group">
-                <label><i class="fab fa-whatsapp"></i> Nomor WhatsApp (untuk konfirmasi)</label>
+                <label><i class="fab fa-whatsapp"></i> Nomor WhatsApp <span style="color:#888;">(Opsional)</span></label>
                 <input type="tel" id="waNumber" placeholder="Contoh: 6281234567890">
+                <div class="optional-note">Diisi jika ingin dikirimi notifikasi via WhatsApp</div>
             </div>
 
             <div class="form-group">
@@ -265,6 +299,74 @@
         let currentUserId = localStorage.getItem("currentUserId");
         let currentUsername = localStorage.getItem("currentUsername");
         let isOwner = false;
+        
+        // Fungsi untuk mendapatkan spesifikasi dari produk (HARGA DARI DATABASE)
+        async function getProductSpec(productId) {
+            try {
+                const productRef = database.ref(`products/${productId}`);
+                const snapshot = await productRef.once('value');
+                const product = snapshot.val();
+                
+                if (product) {
+                    // Ambil harga dari database
+                    const price = product.price || 25000;
+                    const name = product.name || '';
+                    const nameLower = name.toLowerCase();
+                    
+                    // Tentukan spesifikasi berdasarkan nama
+                    let spec = '1gb';
+                    let ram = '1024';
+                    let cpu = '30';
+                    let disk = '2048';
+                    let label = '1 GB RAM';
+                    
+                    if (nameLower.includes('5gb')) { spec = '5gb'; ram = '5120'; cpu = '150'; disk = '10240'; label = '5 GB RAM'; }
+                    else if (nameLower.includes('4gb')) { spec = '4gb'; ram = '4096'; cpu = '120'; disk = '8192'; label = '4 GB RAM'; }
+                    else if (nameLower.includes('3gb')) { spec = '3gb'; ram = '3072'; cpu = '90'; disk = '6144'; label = '3 GB RAM'; }
+                    else if (nameLower.includes('2gb')) { spec = '2gb'; ram = '2048'; cpu = '60'; disk = '4096'; label = '2 GB RAM'; }
+                    else if (nameLower.includes('unlimited') || nameLower.includes('unli')) { spec = 'unli'; ram = '0'; cpu = '0'; disk = '0'; label = 'UNLIMITED'; }
+                    
+                    return {
+                        spec: spec,
+                        ram: ram,
+                        cpu: cpu,
+                        disk: disk,
+                        price: price,
+                        label: label,
+                        productName: name
+                    };
+                }
+            } catch (error) {
+                console.error('Error getting product:', error);
+            }
+            
+            // Default fallback
+            return { spec: '1gb', ram: '1024', cpu: '30', disk: '2048', price: 25000, label: '1 GB RAM', productName: 'Panel 1GB' };
+        }
+
+        function getSpecBadge(spec) {
+            const badges = {
+                '1gb': '<span class="spec-badge spec-1gb">1 GB RAM</span>',
+                '2gb': '<span class="spec-badge spec-2gb">2 GB RAM</span>',
+                '3gb': '<span class="spec-badge spec-3gb">3 GB RAM</span>',
+                '4gb': '<span class="spec-badge spec-4gb">4 GB RAM</span>',
+                '5gb': '<span class="spec-badge spec-5gb">5 GB RAM</span>',
+                'unli': '<span class="spec-badge spec-unli">UNLIMITED</span>'
+            };
+            return badges[spec] || badges['1gb'];
+        }
+
+        function getSpecDetail(spec) {
+            const details = {
+                '1gb': 'RAM: 1024 MB | CPU: 30% | Disk: 2 GB',
+                '2gb': 'RAM: 2048 MB | CPU: 60% | Disk: 4 GB',
+                '3gb': 'RAM: 3072 MB | CPU: 90% | Disk: 6 GB',
+                '4gb': 'RAM: 4096 MB | CPU: 120% | Disk: 8 GB',
+                '5gb': 'RAM: 5120 MB | CPU: 150% | Disk: 10 GB',
+                'unli': 'RAM: Unlimited | CPU: Unlimited | Disk: Unlimited'
+            };
+            return details[spec] || details['1gb'];
+        }
 
         function showToast(msg) {
             let toast = document.createElement("div");
@@ -293,7 +395,7 @@
             }
         }
 
-        function loadData() {
+        async function loadData() {
             const pendingOrder = localStorage.getItem('pendingOrder');
             if (!pendingOrder) {
                 showToast("Data pesanan tidak ditemukan!");
@@ -302,45 +404,60 @@
             }
             
             orderData = JSON.parse(pendingOrder);
-            document.getElementById('productName').innerText = orderData.productName;
-            document.getElementById('productPrice').innerText = 'Rp ' + orderData.productPrice.toLocaleString();
+            
+            // Ambil spesifikasi dari DATABASE (harga sesuai control.html)
+            showLoading();
+            const specData = await getProductSpec(orderData.productId);
+            hideLoading();
+            
+            // TAMPILKAN HARGA DARI DATABASE
+            document.getElementById('productName').innerHTML = `${specData.productName} ${getSpecBadge(specData.spec)}`;
+            document.getElementById('productPrice').innerHTML = 'Rp ' + specData.price.toLocaleString();
+            document.getElementById('productSpec').innerHTML = getSpecDetail(specData.spec);
+            document.getElementById('priceDetail').innerHTML = `💰 Harga: Rp ${specData.price.toLocaleString()} (sudah termasuk biaya pembuatan panel)`;
+            
+            // Simpan spesifikasi ke orderData
+            orderData.specData = specData;
+            orderData.productPrice = specData.price; // UPDATE HARGA dari database
+            localStorage.setItem('pendingOrder', JSON.stringify(orderData));
         }
 
         document.getElementById('submitBtn').addEventListener('click', async () => {
-            const panelName = document.getElementById('panelName').value.trim();
             const panelUsername = document.getElementById('panelUsername').value.trim();
             const panelPassword = document.getElementById('panelPassword').value;
             const waNumber = document.getElementById('waNumber').value.trim();
             const notes = document.getElementById('notes').value.trim();
 
-            if (!panelName) {
-                showToast("Masukkan Nama Panel!");
-                return;
-            }
             if (!panelUsername) {
                 showToast("Masukkan Username Panel!");
+                return;
+            }
+            if (panelUsername.length < 3) {
+                showToast("Username minimal 3 karakter!");
                 return;
             }
             if (!panelPassword) {
                 showToast("Masukkan Password Panel!");
                 return;
             }
-            if (!waNumber) {
-                showToast("Masukkan Nomor WhatsApp!");
-                return;
-            }
 
             showLoading();
 
+            const specData = orderData.specData;
+            const totalPrice = specData.price;
+
             const panelData = {
-                panelName: panelName,
                 panelUsername: panelUsername,
                 panelPassword: panelPassword,
-                waNumber: waNumber,
-                notes: notes,
+                panelName: `${panelUsername}_${specData.spec}`,
+                waNumber: waNumber || '',
+                notes: notes || '',
+                duration: 30,
+                spec: specData.spec,
+                specData: specData,
                 productId: orderData.productId,
                 productName: orderData.productName,
-                productPrice: orderData.productPrice,
+                productPrice: totalPrice,
                 userId: currentUserId,
                 username: currentUsername,
                 timestamp: Date.now(),
@@ -356,7 +473,6 @@
                 
                 const transactionId = 'OWNER_' + Date.now();
                 
-                // Simpan ke database panel_orders
                 await database.ref('panel_orders').push({
                     ...panelData,
                     transactionId: transactionId,
@@ -367,10 +483,10 @@
                 
                 localStorage.setItem('lastTransactionId', transactionId);
                 localStorage.setItem('lastProductName', orderData.productName);
-                localStorage.setItem('lastAmount', orderData.productPrice);
+                localStorage.setItem('lastAmount', totalPrice);
                 localStorage.setItem('lastCategory', 'panel');
                 
-                window.location.href = `susces.html?type=panel&id=${transactionId}&product=${encodeURIComponent(orderData.productName)}&amount=${orderData.productPrice}`;
+                window.location.href = `susces.html?type=panel&id=${transactionId}&product=${encodeURIComponent(orderData.productName)}&amount=${totalPrice}`;
                 return;
             }
 

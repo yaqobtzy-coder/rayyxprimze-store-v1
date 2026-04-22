@@ -75,44 +75,15 @@
             justify-content: center;
             margin: 20px auto;
         }
-        .status-icon.pending {
-            background: #ffc107;
-        }
-        .status-icon.pending i {
-            color: #0a0a1a;
-        }
-        .status-icon.success {
-            background: #28a745;
-        }
-        .status-icon.success i {
-            color: white;
-        }
-        .status-icon.error {
-            background: #dc3545;
-        }
-        .status-icon.error i {
-            color: white;
-        }
-        .status-title {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
-        .status-message {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        .qris-image {
-            width: 100%;
-            max-width: 280px;
-            margin: 20px auto;
-            display: block;
-            border-radius: 20px;
-            background: white;
-            padding: 10px;
-        }
+        .status-icon.pending { background: #ffc107; }
+        .status-icon.pending i { color: #0a0a1a; }
+        .status-icon.success { background: #28a745; }
+        .status-icon.success i { color: white; }
+        .status-icon.error { background: #dc3545; }
+        .status-icon.error i { color: white; }
+        .status-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+        .status-message { font-size: 0.85rem; opacity: 0.8; margin-bottom: 20px; line-height: 1.5; }
+        .qris-image { width: 100%; max-width: 280px; margin: 20px auto; display: block; border-radius: 20px; background: white; padding: 10px; }
         .transaction-details {
             background: rgba(0,0,0,0.4);
             border-radius: 20px;
@@ -120,22 +91,10 @@
             margin: 20px 0;
             text-align: left;
         }
-        .transaction-details p {
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-        }
-        .transaction-details .label {
-            opacity: 0.6;
-        }
-        .transaction-details .value {
-            font-weight: 600;
-            color: #ffd700;
-        }
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
+        .transaction-details p { margin-bottom: 8px; font-size: 0.85rem; }
+        .transaction-details .label { opacity: 0.6; }
+        .transaction-details .value { font-weight: 600; color: #ffd700; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         .btn-primary {
             flex: 1;
             padding: 14px;
@@ -167,11 +126,7 @@
             cursor: pointer;
             margin-top: 10px;
         }
-        .countdown {
-            font-size: 0.8rem;
-            color: #ffc107;
-            margin-top: 10px;
-        }
+        .countdown { font-size: 0.8rem; color: #ffc107; margin-top: 10px; }
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -182,8 +137,8 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
             flex-direction: column;
+            z-index: 9999;
         }
         .loading-overlay.show { display: flex; }
         .spinner {
@@ -194,10 +149,7 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hidden { display: none; }
         .toast {
             position: fixed;
@@ -327,14 +279,14 @@
 
         // TELEGRAM BOT
         const TELEGRAM_BOT_TOKEN = '8352764997:AAEP5JE2llOvuoNFoJvDlATOl2Mrzo4VZ-M';
-        const TELEGRAM_CHAT_ID = '7966336512';
+        const TELEGRAM_OWNER_ID = '7966336512';
 
         async function sendToTelegram(message) {
             try {
                 await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'HTML' })
+                    body: JSON.stringify({ chat_id: TELEGRAM_OWNER_ID, text: message, parse_mode: 'HTML' })
                 });
             } catch (error) { console.error('Telegram error:', error); }
         }
@@ -349,6 +301,7 @@
         let isSuccess = false;
         let isOwner = false;
         let productLinkDownload = null;
+        let panelOrderId = null;
 
         async function checkOwner() {
             const userId = localStorage.getItem("currentUserId");
@@ -371,7 +324,6 @@
             
             const transactionId = 'OWNER_' + Date.now();
             
-            // Kurangi stok produk
             if (orderData && orderData.productId) {
                 const productRef = database.ref(`products/${orderData.productId}`);
                 const productSnap = await productRef.once('value');
@@ -381,62 +333,23 @@
                 }
             }
             
-            // Simpan ke database sesuai kategori
-            if (paymentType === 'sewa' && sewaData) {
-                await database.ref('sewa_orders').push({
-                    ...sewaData,
-                    transactionId: transactionId,
-                    status: 'pending',
-                    paymentStatus: 'success',
-                    createdAt: new Date().toISOString()
-                });
-                
-                const telegramMessage = `🔔 *PESANAN SEWA (OWNER MODE)* 🔔\n\n👤 *Username:* ${orderData.username}\n📦 *Produk:* ${orderData.productName}\n💰 *Harga:* Rp ${orderData.productPrice}\n📱 *No WA:* ${sewaData.waNumber}\n🔗 *Link Group:* ${sewaData.waLink}\n🆔 *ID Transaksi:* ${transactionId}`;
-                await sendToTelegram(telegramMessage);
-                
-            } else if (paymentType === 'script' && scriptData) {
-                await database.ref('script_orders').push({
-                    ...scriptData,
-                    transactionId: transactionId,
-                    status: 'success',
-                    createdAt: new Date().toISOString()
-                });
-                
-                if (productLinkDownload) {
-                    window.open(productLinkDownload, '_blank');
-                }
-                
-            } else if (paymentType === 'panel' && panelData) {
-                await database.ref('panel_orders').push({
+            // PANEL - OWNER MODE
+            if (paymentType === 'panel' && panelData) {
+                const newOrderRef = database.ref('panel_orders').push();
+                panelOrderId = newOrderRef.key;
+                await newOrderRef.set({
                     ...panelData,
                     transactionId: transactionId,
                     status: 'paid',
                     paymentStatus: 'success',
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    notifiedToBot: false
                 });
                 
-                const telegramMessage = `🖥️ *PESANAN PANEL (OWNER MODE)* 🖥️\n\n👤 *Username:* ${orderData.username}\n📦 *Produk:* ${orderData.productName}\n💰 *Harga:* Rp ${orderData.productPrice}\n🖥️ *Nama Panel:* ${panelData.panelName}\n👤 *User Panel:* ${panelData.panelUsername}\n📱 *WA:* ${panelData.waNumber}\n🆔 *ID Transaksi:* ${transactionId}`;
-                await sendToTelegram(telegramMessage);
-                
-            } else if (paymentType === 'digital') {
-                await database.ref('digital_orders').push({
-                    productId: orderData.productId,
-                    productName: orderData.productName,
-                    productPrice: orderData.productPrice,
-                    linkDownload: productLinkDownload,
-                    userId: orderData.userId,
-                    username: orderData.username,
-                    transactionId: transactionId,
-                    status: 'success',
-                    createdAt: new Date().toISOString()
-                });
-                
-                if (productLinkDownload) {
-                    window.open(productLinkDownload, '_blank');
-                }
+                // Kirim notifikasi ke Telegram
+                await sendToTelegram(`🖥️ *PESANAN PANEL (OWNER MODE)* 🖥️\n\n👤 Username: ${orderData.username}\n📦 Produk: ${orderData.productName}\n💰 Harga: Rp ${orderData.productPrice}\n🖥️ Nama Panel: ${panelData.panelName}\n👤 User Panel: ${panelData.panelUsername}\n📱 WA: ${panelData.waNumber}\n🆔 Order ID: ${panelOrderId}`);
             }
             
-            // Redirect ke halaman sukses
             localStorage.setItem('lastTransactionId', transactionId);
             localStorage.setItem('lastProductName', orderData.productName);
             localStorage.setItem('lastAmount', orderData.productPrice);
@@ -458,17 +371,9 @@
                 productLinkDownload = orderData.linkDownload;
             }
             
-            if (pendingSewa) {
-                sewaData = JSON.parse(pendingSewa);
-            }
-            
-            if (pendingScript) {
-                scriptData = JSON.parse(pendingScript);
-            }
-            
-            if (pendingPanel) {
-                panelData = JSON.parse(pendingPanel);
-            }
+            if (pendingSewa) sewaData = JSON.parse(pendingSewa);
+            if (pendingScript) scriptData = JSON.parse(pendingScript);
+            if (pendingPanel) panelData = JSON.parse(pendingPanel);
             
             if (!orderData) {
                 showToast("Data pesanan tidak ditemukan!");
@@ -476,7 +381,6 @@
                 return;
             }
             
-            // Tampilkan detail produk dengan badge kategori
             let categoryBadge = '';
             if (paymentType === 'sewa') categoryBadge = '<span class="category-badge cat-sewa">SEWA BOT</span>';
             else if (paymentType === 'script') categoryBadge = '<span class="category-badge cat-script">SCRIPT</span>';
@@ -665,8 +569,7 @@
                     createdAt: new Date().toISOString()
                 });
                 
-                const telegramMessage = `🔔 *PESANAN SEWA BERHASIL* 🔔\n\n👤 *Username:* ${orderData.username}\n📦 *Produk:* ${orderData.productName}\n💰 *Harga:* Rp ${orderData.productPrice}\n📱 *No WA:* ${sewaData.waNumber}\n🔗 *Link Group:* ${sewaData.waLink}\n🆔 *ID Transaksi:* ${pendingTransaction.id_transaksi}\n⏰ *Waktu:* ${new Date().toLocaleString()}`;
-                await sendToTelegram(telegramMessage);
+                await sendToTelegram(`🔔 *PESANAN SEWA BERHASIL* 🔔\n\n👤 Username: ${orderData.username}\n📦 Produk: ${orderData.productName}\n💰 Harga: Rp ${orderData.productPrice}\n📱 No WA: ${sewaData.waNumber}\n🔗 Link Group: ${sewaData.waLink}\n🆔 ID Transaksi: ${pendingTransaction.id_transaksi}`);
                 
                 statusMessage.innerText = 'Pembayaran berhasil! Menunggu konfirmasi dari admin.';
                 
@@ -698,20 +601,37 @@
                 }, 2000);
             }
             
-            // 3. PANEL HOSTING
+            // 3. PANEL HOSTING (KIRIM KE BOT UNTUK AUTO CREATE)
             else if (paymentType === 'panel' && panelData) {
-                await database.ref('panel_orders').push({
+                const newOrderRef = database.ref('panel_orders').push();
+                panelOrderId = newOrderRef.key;
+                await newOrderRef.set({
                     ...panelData,
                     transactionId: pendingTransaction.id_transaksi,
                     status: 'paid',
                     paymentStatus: 'success',
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    notifiedToBot: false
                 });
                 
-                const telegramMessage = `🖥️ *PESANAN PANEL HOSTING* 🖥️\n\n👤 *Username:* ${orderData.username}\n📦 *Produk:* ${orderData.productName}\n💰 *Harga:* Rp ${orderData.productPrice}\n🖥️ *Nama Panel:* ${panelData.panelName}\n👤 *User Panel:* ${panelData.panelUsername}\n📱 *WA:* ${panelData.waNumber}\n📝 *Catatan:* ${panelData.notes || '-'}\n🆔 *ID Transaksi:* ${pendingTransaction.id_transaksi}`;
-                await sendToTelegram(telegramMessage);
+                // Kirim notifikasi ke Telegram BOT untuk auto create panel
+                const botMessage = `🖥️ *PESANAN PANEL BARU* 🖥️
+
+👤 *Username:* ${orderData.username}
+📦 *Produk:* ${orderData.productName}
+💰 *Harga:* Rp ${orderData.productPrice}
+🖥️ *Nama Panel:* ${panelData.panelName}
+👤 *User Panel:* ${panelData.panelUsername}
+🔑 *Password:* ${panelData.panelPassword}
+📱 *WA:* ${panelData.waNumber}
+📝 *Catatan:* ${panelData.notes || '-'}
+🆔 *Order ID:* ${panelOrderId}
+
+Bot akan otomatis membuat panel dalam beberapa menit.`;
                 
-                statusMessage.innerText = 'Pembayaran berhasil! Admin akan segera membuatkan panel Anda. Data panel akan muncul di menu "Data Panel Saya".';
+                await sendToTelegram(botMessage);
+                
+                statusMessage.innerText = '✅ Pembayaran berhasil! Bot sedang membuatkan panel Anda. Data panel akan muncul di menu "Data Panel Saya" setelah selesai.';
                 
                 setTimeout(() => {
                     window.location.href = `susces.html?type=panel&id=${pendingTransaction.id_transaksi}&product=${encodeURIComponent(orderData.productName)}&amount=${orderData.productPrice}`;
@@ -771,13 +691,8 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        function showLoading() {
-            document.getElementById('loadingOverlay').classList.add('show');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('show');
-        }
+        function showLoading() { document.getElementById('loadingOverlay').classList.add('show'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
 
         function cancelPayment() {
             if (confirm("Batalkan pesanan?")) {
@@ -790,9 +705,7 @@
             }
         }
 
-        function goBack() {
-            window.location.href = 'index.html';
-        }
+        function goBack() { window.location.href = 'index.html'; }
 
         function escapeHtml(str) {
             if (!str) return '';
