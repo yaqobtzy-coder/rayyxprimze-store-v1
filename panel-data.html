@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Data Panel Saya | RayyxPrimze Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
+            border-radius: 30px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+        .header h1 {
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .panel-card {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+            padding-bottom: 8px;
+        }
+        .panel-info {
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .panel-label {
+            opacity: 0.7;
+            font-size: 0.8rem;
+        }
+        .panel-value {
+            font-weight: 600;
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .status-paid { background: #ffc107; color: #1a1a2e; }
+        .status-processing { background: #17a2b8; color: white; }
+        .status-done { background: #28a745; color: white; }
+        .status-failed { background: #dc3545; color: white; }
+        .btn-primary {
+            background: linear-gradient(95deg, #ff9800, #ff5722);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255,215,0,0.3);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            color: #ffd700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            opacity: 0.3;
+            margin-bottom: 16px;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.7rem;
+            opacity: 0.5;
+        }
+        .copy-btn {
+            background: rgba(255,215,0,0.2);
+            border: 1px solid #ffd700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #ffd700;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-server"></i> Data Panel Saya</h1>
+            <p>Informasi panel hosting yang telah Anda beli</p>
+        </div>
+
+        <div id="panelList"></div>
+
+        <button class="btn-secondary" onclick="goToStore()">
+            <i class="fas fa-home"></i> Kembali ke Store
+        </button>
+
+        <footer>
+            <i class="fas fa-shield-alt"></i> RayyxPrimze Store | Panel Hosting
+        </footer>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;">Memuat data panel...</p>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+            authDomain: "rayy-digital-store.firebaseapp.com",
+            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-digital-store",
+            storageBucket: "rayy-digital-store.firebasestorage.app",
+            messagingSenderId: "537690791174",
+            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let currentUserId = localStorage.getItem("currentUserId");
+        let currentUsername = localStorage.getItem("currentUsername");
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            showToast("✅ Data disalin!");
+        }
+
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = msg;
+            toast.style.position = "fixed";
+            toast.style.bottom = "20px";
+            toast.style.left = "20px";
+            toast.style.right = "20px";
+            toast.style.background = "#1a1a2e";
+            toast.style.padding = "12px";
+            toast.style.borderRadius = "40px";
+            toast.style.textAlign = "center";
+            toast.style.zIndex = "2000";
+            toast.style.borderLeft = "4px solid #ffd700";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'paid' || status === 'success') return '<span class="status-badge status-paid">✅ PAID - Menunggu Proses</span>';
+            if (status === 'processing') return '<span class="status-badge status-processing">⚙️ PROCESSING - Sedang Dibuat</span>';
+            if (status === 'done' || status === 'completed') return '<span class="status-badge status-done">✅ DONE - Panel Siap</span>';
+            if (status === 'failed') return '<span class="status-badge status-failed">❌ FAILED - Gagal</span>';
+            return '<span class="status-badge status-paid">⏳ PENDING</span>';
+        }
+
+        async function loadUserPanels() {
+            if (!currentUserId) {
+                document.getElementById('panelList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-lock"></i>
+                        <p>Silakan login terlebih dahulu untuk melihat data panel Anda.</p>
+                        <button class="btn-primary" onclick="window.location.href='index.html'">Login Sekarang</button>
+                    </div>
+                `;
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const panelOrdersRef = database.ref('panel_orders');
+                const snapshot = await panelOrdersRef.orderByChild('userId').equalTo(currentUserId).once('value');
+                const panels = snapshot.val();
+
+                if (!panels || Object.keys(panels).length === 0) {
+                    document.getElementById('panelList').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Anda belum memiliki panel hosting.</p>
+                            <p>Silakan beli panel terlebih dahulu di web store.</p>
+                            <button class="btn-primary" onclick="window.location.href='index.html'">Belanja Sekarang</button>
+                        </div>
+                    `;
+                    hideLoading();
+                    return;
+                }
+
+                let html = '';
+                for (const [id, panel] of Object.entries(panels)) {
+                    const panelCreated = panel.panelCreated || false;
+                    const panelInfo = panel.panelInfo || {};
+                    
+                    html += `
+                        <div class="panel-card">
+                            <div class="panel-title">
+                                <i class="fas fa-server"></i> ${escapeHtml(panel.panelName || panel.productName)}
+                                ${getStatusBadge(panel.status || panel.paymentStatus || 'pending')}
+                            </div>
+                            
+                            <div class="panel-info">
+                                <span class="panel-label">🆔 Order ID:</span>
+                                <span class="panel-value">${id.substring(0, 12)}... <button class="copy-btn" onclick="copyToClipboard('${id}')">Salin</button></span>
+                            </div>
+                            
+                            <div class="panel-info">
+                                <span class="panel-label">📦 Produk:</span>
+                                <span class="panel-value">${escapeHtml(panel.productName)}</span>
+                            </div>
+                            
+                            <div class="panel-info">
+                                <span class="panel-label">💰 Harga:</span>
+                                <span class="panel-value">Rp ${(panel.productPrice || 0).toLocaleString()}</span>
+                            </div>
+                            
+                            <div class="panel-info">
+                                <span class="panel-label">📅 Tanggal Order:</span>
+                                <span class="panel-value">${new Date(panel.createdAt || panel.timestamp).toLocaleString()}</span>
+                            </div>
+                    `;
+                    
+                    if (panelCreated && panelInfo) {
+                        html += `
+                            <hr style="margin: 16px 0; border-color: rgba(255,215,0,0.2);">
+                            <div class="panel-title" style="font-size: 1rem; margin-top: 8px;">
+                                <i class="fas fa-check-circle" style="color: #28a745;"></i> Data Panel Anda
+                            </div>
+                            <div class="panel-info">
+                                <span class="panel-label">🔗 Link Panel:</span>
+                                <span class="panel-value">${escapeHtml(panelInfo.panelUrl || '-')} <button class="copy-btn" onclick="copyToClipboard('${panelInfo.panelUrl || ''}')">Salin</button></span>
+                            </div>
+                            <div class="panel-info">
+                                <span class="panel-label">👤 Username:</span>
+                                <span class="panel-value">${escapeHtml(panelInfo.username || panel.panelUsername)} <button class="copy-btn" onclick="copyToClipboard('${panelInfo.username || panel.panelUsername}')">Salin</button></span>
+                            </div>
+                            <div class="panel-info">
+                                <span class="panel-label">🔑 Password:</span>
+                                <span class="panel-value">${escapeHtml(panelInfo.password || '●●●●●●●●')} <button class="copy-btn" onclick="copyToClipboard('${panelInfo.password || panel.panelPassword}')">Salin</button></span>
+                            </div>
+                        `;
+                    } else if (panel.status === 'paid' || panel.paymentStatus === 'success') {
+                        html += `
+                            <hr style="margin: 16px 0; border-color: rgba(255,215,0,0.2);">
+                            <div class="info-box" style="background: rgba(255,215,0,0.1); border-radius: 12px; padding: 12px; text-align: center;">
+                                <i class="fas fa-spinner fa-pulse"></i> Panel sedang diproses oleh admin.
+                                <br>Mohon tunggu konfirmasi via WhatsApp.
+                            </div>
+                        `;
+                    } else if (panel.status === 'pending') {
+                        html += `
+                            <hr style="margin: 16px 0; border-color: rgba(255,215,0,0.2);">
+                            <div class="info-box" style="background: rgba(255,193,7,0.1); border-radius: 12px; padding: 12px; text-align: center;">
+                                <i class="fas fa-clock"></i> Menunggu pembayaran. Silakan selesaikan pembayaran Anda.
+                            </div>
+                        `;
+                    }
+                    
+                    html += `</div>`;
+                }
+                
+                document.getElementById('panelList').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading panels:', error);
+                document.getElementById('panelList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                        <p>Gagal memuat data panel.</p>
+                        <button class="btn-primary" onclick="location.reload()">Coba Lagi</button>
+                    </div>
+                `;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+        }
+
+        function goToStore() {
+            window.location.href = 'index.html';
+        }
+
+        window.copyToClipboard = copyToClipboard;
+        window.goToStore = goToStore;
+
+        // Cek login dan load data
+        if (!currentUserId) {
+            document.getElementById('panelList').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-lock"></i>
+                    <p>Silakan login terlebih dahulu untuk melihat data panel Anda.</p>
+                    <button class="btn-primary" onclick="window.location.href='index.html'">Login Sekarang</button>
+                </div>
+            `;
+        } else {
+            loadUserPanels();
+        }
+    </script>
+</body>
+</html>

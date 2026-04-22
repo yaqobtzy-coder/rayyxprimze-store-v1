@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>RayyxPrimze Store</title>
+    <title>RayyxPrimze Store | All Digital Product</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -301,28 +301,6 @@
             width: 100%;
         }
         
-        .telegram-widget {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            background: #0088cc;
-            border-radius: 50px;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            z-index: 99;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            transition: 0.2s;
-        }
-        .telegram-widget:hover {
-            transform: scale(1.05);
-            background: #006699;
-        }
-        .telegram-widget i { font-size: 1.3rem; }
-        .telegram-widget span { font-size: 0.7rem; }
-        
         .sidebar {
             position: fixed;
             left: -280px;
@@ -455,6 +433,8 @@
         }
         .product-badge.sewa { background: #2196F3; }
         .product-badge.script { background: #9C27B0; }
+        .product-badge.panel { background: #FF5722; }
+        .product-badge.digital { background: #4CAF50; }
         
         .product-price { 
             font-size: 1rem; 
@@ -492,30 +472,6 @@
             color: white;
             cursor: pointer;
             font-size: 0.75rem;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 1100;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: #1a1a2e;
-            border-radius: 32px;
-            padding: 24px;
-            max-width: 400px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
         }
         
         .chat-room-container {
@@ -728,42 +684,6 @@
             display: none;
         }
         .error-msg.show { display: block; }
-        .history-id {
-            font-family: monospace;
-            font-size: 0.7rem;
-            color: #ffd700;
-        }
-        .history-item {
-            background: rgba(0,0,0,0.4);
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-        
-        .hot-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff4444;
-            color: white;
-            font-size: 0.6rem;
-            padding: 2px 6px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-        
-        .product-header {
-            position: relative;
-        }
-        
-        .referral-code {
-            background: rgba(0,0,0,0.3);
-            padding: 8px;
-            border-radius: 12px;
-            font-family: monospace;
-            font-size: 0.7rem;
-            margin-top: 8px;
-        }
         
         .info-modal {
             position: fixed;
@@ -839,6 +759,17 @@
             font-size: 0.6rem;
             margin-left: 8px;
         }
+        .panel-link {
+            background: rgba(40,167,69,0.2);
+            padding: 8px;
+            border-radius: 12px;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .panel-link a {
+            color: #ffd700;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -846,7 +777,6 @@
         <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
-    
     
     <div id="maintenanceMode" style="display: none;">
         <div class="maintenance-container">
@@ -871,7 +801,6 @@
             </div>
         </div>
         
-        <!-- SIDEBAR -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -883,7 +812,8 @@
                 <li><a href="#" onclick="openTikTok()"><i class="fab fa-tiktok"></i> TikTok</a></li>
                 <li><a href="tools.html" target="_blank"><i class="fas fa-gamepad"></i> Tools Zone</a></li>
                 <li><a href="gacha.html" target="_blank"><i class="fas fa-dice-d6"></i> Gacha</a></li>
-                <li><a href="#" onclick="window.open('https://t.me/Databasetrx_bot', '_blank')"><i class="fab fa-telegram"></i> Telegram Bot</a></li>
+                <li><a href="#" onclick="window.open('https://t.me/rayyxprimze_bot', '_blank')"><i class="fab fa-telegram"></i> Telegram Bot</a></li>
+                <li><a href="panel-data.html" target="_blank"><i class="fas fa-server"></i> Data Panel Saya</a></li>
             </ul>
         </div>
         
@@ -895,7 +825,7 @@
             <div class="card">
                 <div class="logo">
                     <h1><i class="fas fa-crown"></i> RayyxPrimze</h1>
-                    <p>SCRIPT & SEWA BOT</p>
+                    <p>PRODUK DIGITAL & SEWA BOT</p>
                 </div>
                 <div class="subtitle" style="text-align:center; font-size:0.85rem; opacity:0.8; margin-bottom:28px;">
                     Elite access, elite experience.
@@ -1035,7 +965,6 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: TELEGRAM_OWNER_ID, text: message, parse_mode: 'HTML' })
                 });
-                console.log("✅ Notifikasi Telegram terkirim");
             } catch(e) { console.error("Telegram error:", e); }
         }
 
@@ -1172,26 +1101,6 @@
         }
         function closeReadmeModal() {
             document.getElementById('readmeModal').classList.remove('active');
-        }
-        
-        // ==================== HISTORY ====================
-        async function loadHistory() {
-            const historyRef = ref(database, `transactions/${currentUserId}`);
-            const snapshot = await get(historyRef);
-            const container = document.getElementById('historyList');
-            if (!container) return;
-            if (!snapshot.exists()) { container.innerHTML = '<div style="text-align:center; padding:20px;">Belum ada transaksi</div>'; return; }
-            const data = snapshot.val();
-            const historyArray = Object.values(data).sort((a,b) => b.timestamp - a.timestamp);
-            container.innerHTML = historyArray.map(trans => `
-                <div class="history-item">
-                    <div><strong>${escapeHtml(trans.productName)}</strong></div>
-                    <div>Rp ${trans.amount?.toLocaleString() || 0}</div>
-                    <div class="history-id">ID Transaksi: ${trans.transactionId || '-'}</div>
-                    <div><small>${new Date(trans.timestamp).toLocaleString()}</small></div>
-                    <div><span style="background:#28a745; padding:2px 8px; border-radius:12px; font-size:0.7rem;">${trans.status || 'success'}</span></div>
-                </div>
-            `).join('');
         }
         
         // ==================== POPUP ====================
@@ -1463,7 +1372,7 @@
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                         <span class="product-name">${escapeHtml(prod.name)}</span>
-                        <span class="product-badge ${prod.category}">${prod.category.toUpperCase()}</span>
+                        <span class="product-badge ${prod.category}">${prod.category === 'panel' ? 'PANEL' : (prod.category === 'digital' ? 'DIGITAL' : prod.category.toUpperCase())}</span>
                     </div>
                     <div class="product-price">Rp ${prod.price?.toLocaleString() || 0}</div>
                     <div class="product-stock"><i class="fas fa-box"></i> Stok: ${prod.stock || 0}</div>
@@ -1475,7 +1384,7 @@
             `).join('');
         }
         
-        // UPDATE handleBuyProduct untuk SCRIPT (arah ke buy-script.html)
+        // handleBuyProduct untuk semua kategori
         async function handleBuyProduct(productId, productName, productPrice, category, linkDownload) {
             const orderData = {
                 productId: productId,
@@ -1495,6 +1404,10 @@
                 window.location.href = 'sewa-form.html';
             } else if (category === 'script') {
                 window.location.href = 'buy-script.html';
+            } else if (category === 'panel') {
+                window.location.href = 'buy-panel.html';
+            } else if (category === 'digital') {
+                window.location.href = 'payment.html?type=digital';
             }
         }
         
@@ -1656,7 +1569,7 @@
                 <div class="store-header">
                     <div class="logo">
                         <h1><i class="fas fa-crown"></i> RayyxPrimze</h1>
-                        <p>SCRIPT & SEWA BOT</p>
+                        <p>PRODUK DIGITAL & SEWA BOT</p>
                     </div>
                     <div class="header-stats">
                         <div class="stat-card"><i class="fas fa-coins"></i> <span id="userKoin">${currentUserData?.koin || 0}</span></div>
@@ -1675,9 +1588,11 @@
                 
                 <div id="storePage" class="page active">
                     <div class="kategori-tabs" id="kategoriTabs">
-                        <div class="kategori-btn active" data-kat="semua">SEMUA</div>
-                        <div class="kategori-btn" data-kat="sewa">SEWA</div>
-                        <div class="kategori-btn" data-kat="script">SCRIPT</div>
+                        <div class="kategori-btn active" data-kat="semua">📦 ALL PRODUK</div>
+                        <div class="kategori-btn" data-kat="sewa">🤖 SEWA BOT</div>
+                        <div class="kategori-btn" data-kat="script">💻 SCRIPT</div>
+                        <div class="kategori-btn" data-kat="panel">🖥️ PANEL HOSTING</div>
+                        <div class="kategori-btn" data-kat="digital">📀 PRODUK DIGITAL</div>
                     </div>
                     <div class="products-grid" id="productsGrid">
                         <div style="grid-column:span 2; text-align:center; padding:40px;">
@@ -1706,6 +1621,9 @@
                         <p style="margin: 12px 0;"><i class="fas fa-coins"></i> Koin: <span id="profileKoin">0</span></p>
                         <p><i class="fas fa-trophy"></i> Level: <span id="profileLevel">ROOKIE</span></p>
                         <div class="referral-code" id="profileReferralCode"></div>
+                        <div class="panel-link" style="margin-top: 12px;">
+                            <i class="fas fa-server"></i> <a href="panel-data.html" target="_blank">📋 Lihat Data Panel Saya</a>
+                        </div>
                         <button class="btn-logout" onclick="handleLogout()">LOGOUT</button>
                     </div>
                 </div>

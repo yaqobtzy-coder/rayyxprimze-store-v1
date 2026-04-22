@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Beli Panel Hosting | RayyxPrimze Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #0f0f2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10,10,30,0.85), rgba(0,0,0,0.92));
+            z-index: -1;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .form-card {
+            background: rgba(15, 15, 35, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 48px;
+            padding: 32px 28px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            width: 100%;
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #FFD966, #FF8C00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .logo p {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            text-align: center;
+        }
+        .product-info {
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .product-info .product-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .product-info .product-price {
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            color: white;
+            font-size: 1rem;
+        }
+        .form-group textarea {
+            resize: none;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #0a0a1a;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 40px;
+            font-weight: 600;
+            color: #ffd700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 40px;
+            text-align: center;
+            z-index: 2000;
+            border-left: 4px solid #ffd700;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        .loading-overlay.show { display: flex; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,215,0,0.3);
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .owner-badge {
+            background: linear-gradient(95deg, #FFD700, #FF8C00);
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .info-box {
+            background: rgba(255,215,0,0.1);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <video id="bgVideo" autoplay loop muted playsinline>
+        <source src="https://files.catbox.moe/t8a5ig.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="container">
+        <div class="form-card">
+            <div class="logo">
+                <h1><i class="fas fa-crown"></i> RayyxPrimze</h1>
+                <p>FORM PEMBELIAN PANEL HOSTING</p>
+            </div>
+
+            <div id="ownerInfo" style="text-align:center;"></div>
+
+            <div class="product-info" id="productInfo">
+                <div class="product-name" id="productName">-</div>
+                <div class="product-price" id="productPrice">Rp 0</div>
+            </div>
+
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i> Isi data berikut untuk pembuatan panel hosting. Data akan dikirim ke admin untuk diproses.
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-server"></i> Nama Panel / Domain yang Diinginkan</label>
+                <input type="text" id="panelName" placeholder="Contoh: panel-saya.rxpedia.web.id">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Username Panel</label>
+                <input type="text" id="panelUsername" placeholder="Username untuk login panel">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Password Panel</label>
+                <input type="password" id="panelPassword" placeholder="Password untuk login panel">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fab fa-whatsapp"></i> Nomor WhatsApp (untuk konfirmasi)</label>
+                <input type="tel" id="waNumber" placeholder="Contoh: 6281234567890">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-comment"></i> Catatan Tambahan (opsional)</label>
+                <textarea id="notes" rows="2" placeholder="Tulis catatan jika ada..."></textarea>
+            </div>
+
+            <button class="btn-primary" id="submitBtn">
+                <i class="fas fa-arrow-right"></i> Lanjut ke Pembayaran
+            </button>
+            <button class="btn-secondary" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </button>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;">Memproses...</p>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+            authDomain: "rayy-digital-store.firebaseapp.com",
+            databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rayy-digital-store",
+            storageBucket: "rayy-digital-store.firebasestorage.app",
+            messagingSenderId: "537690791174",
+            appId: "1:537690791174:web:c29f7cdfcae0506b6e1287"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let orderData = null;
+        let currentUserId = localStorage.getItem("currentUserId");
+        let currentUsername = localStorage.getItem("currentUsername");
+        let isOwner = false;
+
+        function showToast(msg) {
+            let toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerHTML = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showLoading() {
+            document.getElementById("loadingOverlay").classList.add("show");
+        }
+
+        function hideLoading() {
+            document.getElementById("loadingOverlay").classList.remove("show");
+        }
+
+        async function checkOwner() {
+            if (currentUserId) {
+                const userRef = database.ref(`users/${currentUserId}`);
+                const snapshot = await userRef.once('value');
+                if (snapshot.exists() && snapshot.val().role === 'owner') {
+                    isOwner = true;
+                    document.getElementById('ownerInfo').innerHTML = '<span class="owner-badge"><i class="fas fa-crown"></i> OWNER MODE - FREE TESTING</span>';
+                }
+            }
+        }
+
+        function loadData() {
+            const pendingOrder = localStorage.getItem('pendingOrder');
+            if (!pendingOrder) {
+                showToast("Data pesanan tidak ditemukan!");
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+                return;
+            }
+            
+            orderData = JSON.parse(pendingOrder);
+            document.getElementById('productName').innerText = orderData.productName;
+            document.getElementById('productPrice').innerText = 'Rp ' + orderData.productPrice.toLocaleString();
+        }
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const panelName = document.getElementById('panelName').value.trim();
+            const panelUsername = document.getElementById('panelUsername').value.trim();
+            const panelPassword = document.getElementById('panelPassword').value;
+            const waNumber = document.getElementById('waNumber').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+
+            if (!panelName) {
+                showToast("Masukkan Nama Panel!");
+                return;
+            }
+            if (!panelUsername) {
+                showToast("Masukkan Username Panel!");
+                return;
+            }
+            if (!panelPassword) {
+                showToast("Masukkan Password Panel!");
+                return;
+            }
+            if (!waNumber) {
+                showToast("Masukkan Nomor WhatsApp!");
+                return;
+            }
+
+            showLoading();
+
+            const panelData = {
+                panelName: panelName,
+                panelUsername: panelUsername,
+                panelPassword: panelPassword,
+                waNumber: waNumber,
+                notes: notes,
+                productId: orderData.productId,
+                productName: orderData.productName,
+                productPrice: orderData.productPrice,
+                userId: currentUserId,
+                username: currentUsername,
+                timestamp: Date.now(),
+                status: 'pending',
+                panelCreated: false
+            };
+
+            localStorage.setItem('panelData', JSON.stringify(panelData));
+
+            if (isOwner) {
+                hideLoading();
+                showToast("🎉 OWNER MODE: Transaksi gratis!");
+                
+                const transactionId = 'OWNER_' + Date.now();
+                
+                // Simpan ke database panel_orders
+                await database.ref('panel_orders').push({
+                    ...panelData,
+                    transactionId: transactionId,
+                    status: 'paid',
+                    paymentStatus: 'success',
+                    createdAt: new Date().toISOString()
+                });
+                
+                localStorage.setItem('lastTransactionId', transactionId);
+                localStorage.setItem('lastProductName', orderData.productName);
+                localStorage.setItem('lastAmount', orderData.productPrice);
+                localStorage.setItem('lastCategory', 'panel');
+                
+                window.location.href = `susces.html?type=panel&id=${transactionId}&product=${encodeURIComponent(orderData.productName)}&amount=${orderData.productPrice}`;
+                return;
+            }
+
+            window.location.href = 'payment.html?type=panel';
+        });
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        checkOwner();
+        loadData();
+    </script>
+</body>
+</html>
